@@ -40,6 +40,13 @@ async function seed() {
     },
   });
 
+  await prisma.account.create({
+    data: {
+      totalBalance: 2000,
+      userId: user.id,
+    },
+  });
+
   console.log(`Database has been seeded. 🌱`);
 }
 
