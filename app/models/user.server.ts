@@ -21,10 +21,10 @@ export async function createUser(email: User["email"], password: string) {
       email,
       password: {
         create: {
-          hash: hashedPassword,
-        },
-      },
-    },
+          hash: hashedPassword
+        }
+      }
+    }
   });
 }
 
@@ -40,8 +40,10 @@ export async function verifyLogin(
     where: { email },
     include: {
       password: true,
-    },
+    }
   });
+
+  console.log(46, userWithPassword);
 
   if (!userWithPassword || !userWithPassword.password) {
     return null;
