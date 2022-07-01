@@ -13,7 +13,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const balance = await getTotalBalance(user.email);
   console.log(13, balance);
-  return balance;
+  return balance || 0;
 };
 
 export default function Dashboard() {
