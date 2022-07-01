@@ -20,6 +20,11 @@ Under development
   npx remix init
   ```
 
+- Init db
+  ```sh
+    npx prisma db seed
+  ```
+
 - Start dev server:
 
   ```sh
