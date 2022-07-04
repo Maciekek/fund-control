@@ -1,17 +1,3 @@
-import { createBudget } from "~/models/budget.server";
-import { ActionFunction, redirect } from "@remix-run/node";
-import { getUserId } from "~/session.server";
-
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const userId = await getUserId(request);
-  const name = formData.get("name");
-
-  const budget = await createBudget({ name, userId });
-
-  return redirect(`/budgets/${budget.id}`);
-};
-
 export default function New() {
   return (
     <div
@@ -24,7 +10,7 @@ export default function New() {
           <h2 className="text-2xl font-bold text-gray-900 lg:text-3xl">
             New budget
           </h2>
-          <form className="mt-8 space-y-6" method="post">
+          <form className="mt-8 space-y-6" action="#">
             <div>
               <label
                 htmlFor="name"

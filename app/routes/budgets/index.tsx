@@ -5,7 +5,6 @@ import { getAllBudgets } from "~/models/budget.server";
 import { Link, useLoaderData } from "@remix-run/react";
 
 type Budgets = {
-  id: string;
   name: string;
 };
 
@@ -20,34 +19,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function BudgetIndexPage() {
   const budgets = useLoaderData() as Budgets[];
 
-  if (budgets.length === 0) {
-    return (
-      <Box
-        mainText={"You have no budgets"}
-        secondaryText={
-          budgets.length === 0 ? (
-            <Link to={"new"}>Create new budget</Link>
-          ) : null
-        }
-      />
-    );
-  }
-
   return (
-    <div className="mt-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-      <>
-        {budgets.map((budget, i) => {
-          return (
-            <Box
-              link={budget.id}
-              key={i}
-              mainText={budget.name}
-              secondaryText={""}
-            />
-          );
-        })}
-        <Box secondaryText={<Link to={"new"}>Create new budget</Link>} />
-      </>
-    </div>
+    <Box
+      mainText={budgets.length === 0 ? "You have no budgets" : "masz cos"}
+      secondaryText={
+        budgets.length === 0 ? <Link to={"new"}>Create new budget</Link> : null
+      }
+    />
   );
 }
