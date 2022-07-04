@@ -1,9 +1,10 @@
-import type { Password, User, Budget } from "@prisma/client";
+import type { Password, User, Budget, Income } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
 export type { User } from "@prisma/client";
 export type { Budget } from "@prisma/client";
+export type { Income } from "@prisma/client";
 
 export async function getAllBudgets(email: User["email"]) {
   const user = await prisma.user.findUnique({
@@ -14,6 +15,17 @@ export async function getAllBudgets(email: User["email"]) {
   });
 
   return user?.budget;
+}
+
+export async function getAllIncomes(id: any) {
+  const budget = await prisma.budget.findUnique({
+    where: { id: id.id },
+    include: {
+      income: true,
+    },
+  });
+
+  return budget?.income;
 }
 
 export function deleteBudget({
@@ -51,5 +63,25 @@ export function getBudget({
 }) {
   return prisma.budget.findFirst({
     where: { id, userId },
+  });
+}
+
+export function addIncome({
+  amount,
+  description,
+  budgetId,
+}: Pick<Income, "amount" | "description"> & {
+  budgetId: Budget["id"];
+}) {
+  return prisma.income.create({
+    data: {
+      amount,
+      description,
+      budget: {
+        connect: {
+          id: budgetId,
+        },
+      },
+    },
   });
 }

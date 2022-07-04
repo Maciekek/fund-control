@@ -1,15 +1,16 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useCatch, useLoaderData } from "@remix-run/react";
+import { Form, Link, useCatch, useLoaderData, Outlet } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import type { Budget } from "~/models/budget.server";
+import type { Budget, Income } from "~/models/budget.server";
 
-import { deleteBudget, getBudget } from "~/models/budget.server";
+import { deleteBudget, getAllIncomes, getBudget } from "~/models/budget.server";
 import { requireUserId } from "~/session.server";
 
 type LoaderData = {
   budget: Budget;
+  incomes?: Income[] | null;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -17,10 +18,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.budgetId, "noteId not found");
 
   const budget = await getBudget({ userId, id: params.budgetId });
+  const incomes = await getAllIncomes({ id: params.budgetId });
+
   if (!budget) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json<LoaderData>({ budget });
+  return json<LoaderData>({ budget, incomes: incomes || [] });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -34,7 +37,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function NoteDetailsPage() {
   const data = useLoaderData() as LoaderData;
-
+  console.log(40, data);
   return (
     <div className={"px-4 pt-6"}>
       <div>
@@ -64,14 +67,14 @@ export default function NoteDetailsPage() {
                 Scheduled incomes
               </span>
             </div>
-            {/*<div className="flex-shrink-0">*/}
-            {/*  <a*/}
-            {/*    href="#"*/}
-            {/*    className="rounded-lg p-2 text-sm font-medium text-cyan-600 hover:bg-gray-100"*/}
-            {/*  >*/}
-            {/*    View all*/}
-            {/*  </a>*/}
-            {/*</div>*/}
+            <div className="flex-shrink-0">
+              <Link
+                to="incomes/add"
+                className="rounded-lg p-2 text-sm font-medium text-cyan-600 hover:bg-gray-100"
+              >
+                Add
+              </Link>
+            </div>
           </div>
 
           <div className="mt-8 flex flex-col">
@@ -102,18 +105,24 @@ export default function NoteDetailsPage() {
                       </tr>
                     </thead>
                     <tbody className="bg-white">
-                      <tr>
-                        <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
-                          Payment from{" "}
-                          <span className="font-semibold">Bonnie Green</span>
-                        </td>
-                        <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
-                          Apr 23 ,2021
-                        </td>
-                        <td className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900">
-                          $2300
-                        </td>
-                      </tr>
+                      {data?.incomes?.map((income) => {
+                        return (
+                          <tr key={income.id}>
+                            <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
+                              Payment from{" "}
+                              <span className="font-semibold">
+                                {income.description}
+                              </span>
+                            </td>
+                            <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
+                              Apr 23 ,2021
+                            </td>
+                            <td className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900">
+                              {income.amount}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

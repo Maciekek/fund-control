@@ -1,26 +1,26 @@
-import { createBudget } from "~/models/budget.server";
+import { addIncome, createBudget } from "~/models/budget.server";
 import { ActionFunction, redirect } from "@remix-run/node";
 import { getUserId } from "~/session.server";
 import { useActionData } from "@remix-run/react";
 
-type ActionData = {
-  errors?: {
-    name?: string;
-  };
-};
-
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
-  const userId = await getUserId(request);
-  const name = formData.get("name");
 
-  const budget = await createBudget({ name, userId });
+  const amount = formData.get("amount");
+  const description = formData.get("description");
 
-  return redirect(`/budgets/${budget.id}`);
+  await addIncome({
+    amount: Number(amount),
+    description: description!.toString(),
+    budgetId: params!.budgetId!,
+  });
+
+  return redirect(`/budgets/${params!.budgetId!}`);
 };
 
-export default function New() {
-  const actionData = useActionData() as ActionData;
+export default function NewIncome() {
+  const actionData = useActionData();
+  console.log(18, actionData);
 
   return (
     <div
@@ -31,22 +31,38 @@ export default function New() {
       <div className="w-full rounded-lg bg-white shadow sm:max-w-screen-sm md:mt-0 xl:p-0">
         <div className="space-y-8 p-6 sm:p-8 lg:p-16">
           <h2 className="text-2xl font-bold text-gray-900 lg:text-3xl">
-            New budget
+            Planned income
           </h2>
           <form className="mt-8 space-y-6" method="post">
             <div>
               <label
-                htmlFor="name"
+                htmlFor="description"
                 className="mb-2 block text-sm font-medium text-gray-900"
               >
                 Name
               </label>
               <input
                 type="text"
-                name="name"
-                id="name"
+                name="description"
+                id="description"
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                placeholder="January"
+                placeholder="Salary"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="amount"
+                className="mb-2 block text-sm font-medium text-gray-900"
+              >
+                Name
+              </label>
+              <input
+                type="number"
+                name="amount"
+                id="amount"
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                placeholder="2000"
               />
             </div>
 
