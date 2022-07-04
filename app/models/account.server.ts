@@ -14,5 +14,5 @@ export async function getTotalBalance(email: User["email"]) {
     },
   });
 
-  return user?.account?.totalBalance;
+  return user?.account?.totalBalance || 0;
 }
