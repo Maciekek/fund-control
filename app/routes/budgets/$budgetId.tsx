@@ -18,8 +18,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.budgetId, "noteId not found");
 
   const budget = await getBudget({ userId, id: params.budgetId });
-  const incomes = await getAllIncomes({ id: params.budgetId });
-
+  const incomes = await getAllIncomes(params.budgetId);
+  console.log(22, incomes);
   if (!budget) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -64,7 +64,7 @@ export default function NoteDetailsPage() {
             <div>
               <h3 className="mb-2 text-xl font-bold text-gray-900">Incomes</h3>
               <span className="text-base font-normal text-gray-500">
-                Scheduled incomes
+                Scheduled incomes (10 latest)
               </span>
             </div>
             <div className="flex-shrink-0">

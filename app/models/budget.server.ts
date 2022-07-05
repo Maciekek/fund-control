@@ -17,15 +17,13 @@ export async function getAllBudgets(email: User["email"]) {
   return user?.budget;
 }
 
-export async function getAllIncomes(id: any) {
-  const budget = await prisma.budget.findUnique({
-    where: { id: id.id },
-    include: {
-      income: true,
-    },
+export async function getAllIncomes(id: string) {
+  const budget = await prisma.income.findMany({
+    where: { budgetId: id },
+    take: 15,
   });
 
-  return budget?.income;
+  return budget;
 }
 
 export function deleteBudget({
