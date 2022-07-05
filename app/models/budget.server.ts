@@ -67,14 +67,16 @@ export function getBudget({
 export function addIncome({
   amount,
   description,
+  date,
   budgetId,
-}: Pick<Income, "amount" | "description"> & {
+}: Pick<Income, "amount" | "description" | "date"> & {
   budgetId: Budget["id"];
 }) {
   return prisma.income.create({
     data: {
       amount,
       description,
+      date,
       budget: {
         connect: {
           id: budgetId,

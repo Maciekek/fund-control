@@ -7,6 +7,7 @@ import type { Budget, Income } from "~/models/budget.server";
 
 import { deleteBudget, getAllIncomes, getBudget } from "~/models/budget.server";
 import { requireUserId } from "~/session.server";
+import { format } from "date-fns";
 
 type LoaderData = {
   budget: Budget;
@@ -27,8 +28,17 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
+  const formData = await request.formData();
+
   const userId = await requireUserId(request);
   invariant(params.budgetId, "budgetId not found");
+
+  const intent = formData.get("intent");
+
+  if (intent === "delete_income") {
+    console.log(39, "usuwam income");
+    return "";
+  }
 
   await deleteBudget({ userId, id: params.budgetId });
 
@@ -102,6 +112,12 @@ export default function NoteDetailsPage() {
                         >
                           Amount
                         </th>
+                        <th
+                          scope="col"
+                          className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                        >
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white">
@@ -109,16 +125,27 @@ export default function NoteDetailsPage() {
                         return (
                           <tr key={income.id}>
                             <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
-                              Payment from{" "}
                               <span className="font-semibold">
                                 {income.description}
                               </span>
                             </td>
                             <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
-                              Apr 23 ,2021
+                              {format(new Date(income.date), "PP")}
                             </td>
                             <td className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900">
                               {income.amount}
+                            </td>
+                            <td className="cursor-pointer whitespace-nowrap p-4 text-sm">
+                              <Form method="post">
+                                <button
+                                  type="submit"
+                                  className="whitespace-nowrap p-4 text-sm"
+                                  name={"intent"}
+                                  value={"delete_income"}
+                                >
+                                  Delete (not implemented yet)
+                                </button>
+                              </Form>
                             </td>
                           </tr>
                         );

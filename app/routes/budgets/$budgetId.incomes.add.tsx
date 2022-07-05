@@ -1,27 +1,27 @@
-import { addIncome, createBudget } from "~/models/budget.server";
+import { addIncome } from "~/models/budget.server";
 import { ActionFunction, redirect } from "@remix-run/node";
-import { getUserId } from "~/session.server";
-import { useActionData } from "@remix-run/react";
+import { format, getTime } from "date-fns";
+import { useState } from "react";
 
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
 
   const amount = formData.get("amount");
   const description = formData.get("description");
+  const date = formData.get("date") as string;
 
   await addIncome({
     amount: Number(amount),
     description: description!.toString(),
     budgetId: params!.budgetId!,
+    date: new Date(date!),
   });
 
   return redirect(`/budgets/${params!.budgetId!}`);
 };
 
 export default function NewIncome() {
-  const actionData = useActionData();
-  console.log(18, actionData);
-
+  const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   return (
     <div
       className={
@@ -55,7 +55,7 @@ export default function NewIncome() {
                 htmlFor="amount"
                 className="mb-2 block text-sm font-medium text-gray-900"
               >
-                Name
+                Amount
               </label>
               <input
                 type="number"
@@ -63,6 +63,26 @@ export default function NewIncome() {
                 id="amount"
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
                 placeholder="2000"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="date"
+                className="mb-2 block text-sm font-medium text-gray-900"
+              >
+                Date
+              </label>
+
+              <input
+                type="date"
+                name={"date"}
+                value={date}
+                onChange={(event) => {
+                  console.log(82, event.target.value);
+                  setDate(event.target.value);
+                }}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
               />
             </div>
 
