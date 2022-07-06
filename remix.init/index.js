@@ -4,7 +4,7 @@ const fs = require("fs/promises");
 const path = require("path");
 const inquirer = require("inquirer");
 
-const toml = require("@iarna/toml");
+// const toml = require("@iarna/toml");
 const sort = require("sort-package-json");
 
 function escapeRegExp(string) {
@@ -42,8 +42,8 @@ async function main({ rootDirectory }) {
     `SESSION_SECRET="${getRandomString(16)}"`
   );
 
-  const prodToml = toml.parse(prodContent);
-  prodToml.app = prodToml.app.replace(REPLACER, APP_NAME);
+  // const prodToml = toml.parse(prodContent);
+  // prodToml.app = prodToml.app.replace(REPLACER, APP_NAME);
 
   const newReadme = readme.replace(
     new RegExp(escapeRegExp(REPLACER), "g"),
