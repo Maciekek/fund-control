@@ -14,6 +14,7 @@ import {
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
+
 import { getUser } from "./session.server";
 
 export const links: LinksFunction = () => {
@@ -40,7 +41,7 @@ export default function App() {
   return (
     <html lang="en" className="h-full">
       <head>
-        <Meta/>
+        <Meta />
         <Links />
       </head>
       <body className="h-full">

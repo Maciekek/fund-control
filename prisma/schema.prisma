@@ -51,24 +51,28 @@ model Budget {
   name  String
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @unique
+  userId String
 
   outgo    Outgo[]
   income   Income[]
 }
 
 model Outgo {
+    id String @id @default(cuid())
     amount Int
     description String
+    date  DateTime
 
     budget  Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    budgetId String @unique
+    budgetId String
 }
 
 model Income {
+    id String @id @default(cuid())
     amount Int
     description String
+    date  DateTime
 
     budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    budgetId String @unique
+    budgetId String
 }
