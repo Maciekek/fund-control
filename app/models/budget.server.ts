@@ -85,3 +85,12 @@ export function addIncome({
     },
   });
 }
+
+export function deleteBudgetIncome({
+  id,
+  budgetId,
+}: Pick<Income, "id"> & { budgetId: Budget["id"] }) {
+  return prisma.income.deleteMany({
+    where: { id, budgetId },
+  });
+}

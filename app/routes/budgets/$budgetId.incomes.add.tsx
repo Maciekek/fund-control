@@ -1,6 +1,6 @@
 import { addIncome } from "~/models/budget.server";
 import { ActionFunction, redirect } from "@remix-run/node";
-import { format, getTime } from "date-fns";
+import { format } from "date-fns";
 import { useState } from "react";
 
 export const action: ActionFunction = async ({ request, params }) => {

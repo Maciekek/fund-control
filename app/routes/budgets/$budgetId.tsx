@@ -5,7 +5,12 @@ import invariant from "tiny-invariant";
 
 import type { Budget, Income } from "~/models/budget.server";
 
-import { deleteBudget, getAllIncomes, getBudget } from "~/models/budget.server";
+import {
+  deleteBudget,
+  deleteBudgetIncome,
+  getAllIncomes,
+  getBudget,
+} from "~/models/budget.server";
 import { requireUserId } from "~/session.server";
 import { format } from "date-fns";
 
@@ -36,8 +41,10 @@ export const action: ActionFunction = async ({ request, params }) => {
   const intent = formData.get("intent");
 
   if (intent === "delete_income") {
-    console.log(39, "usuwam income");
-    return "";
+    const incomeId = formData.get("incomeId") as string;
+    await deleteBudgetIncome({ id: incomeId, budgetId: params.budgetId });
+
+    return "/";
   }
 
   await deleteBudget({ userId, id: params.budgetId });
@@ -47,7 +54,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function NoteDetailsPage() {
   const data = useLoaderData() as LoaderData;
-  console.log(40, data);
+
   return (
     <div className={"px-4 pt-6"}>
       <div>
@@ -91,67 +98,92 @@ export default function NoteDetailsPage() {
             <div className="overflow-x-auto rounded-lg">
               <div className="inline-block min-w-full align-middle">
                 <div className="overflow-hidden shadow sm:rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  {data?.incomes?.length === 0 ? (
+                    <div className={"text text-center"}>
+                      <div className={"text-underline text-zinc-500"}>
+                        You have no incomes
+                      </div>
+                      <div>
+                        <Link
+                          className={
+                            "rounded-lg p-1 text-sm font-medium text-cyan-600 hover:bg-gray-100"
+                          }
+                          to="incomes/add"
                         >
-                          Title
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                        >
-                          Date &amp; Time
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                        >
-                          Amount
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                        >
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white">
-                      {data?.incomes?.map((income) => {
-                        return (
-                          <tr key={income.id}>
-                            <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
-                              <span className="font-semibold">
-                                {income.description}
-                              </span>
-                            </td>
-                            <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
-                              {format(new Date(income.date), "PP")}
-                            </td>
-                            <td className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900">
-                              {income.amount}
-                            </td>
-                            <td className="cursor-pointer whitespace-nowrap p-4 text-sm">
-                              <Form method="post">
-                                <button
-                                  type="submit"
-                                  className="whitespace-nowrap p-4 text-sm"
-                                  name={"intent"}
-                                  value={"delete_income"}
-                                >
-                                  Delete (not implemented yet)
-                                </button>
-                              </Form>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                          Add your first income!
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                          >
+                            Title
+                          </th>
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                          >
+                            Date &amp; Time
+                          </th>
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                          >
+                            Amount
+                          </th>
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                          >
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white">
+                        {data?.incomes?.map((income) => {
+                          return (
+                            <tr key={income.id}>
+                              <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
+                                <span className="font-semibold">
+                                  {income.description}
+                                </span>
+                              </td>
+                              <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
+                                {format(new Date(income.date), "PP")}
+                              </td>
+                              <td className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900">
+                                {income.amount}
+                              </td>
+                              <td className="cursor-pointer whitespace-nowrap p-4 text-sm">
+                                <Form method="post">
+                                  <input
+                                    type="text"
+                                    className={"hidden"}
+                                    name={"incomeId"}
+                                    value={income.id}
+                                    readOnly={true}
+                                  />
+                                  <button
+                                    type="submit"
+                                    className="whitespace-nowrap p-4 text-sm"
+                                    name={"intent"}
+                                    value={"delete_income"}
+                                  >
+                                    Delete (not implemented yet)
+                                  </button>
+                                </Form>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </div>
             </div>
