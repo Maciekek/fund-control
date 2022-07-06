@@ -18,7 +18,6 @@ function getRandomString(length) {
 
 async function main({ rootDirectory }) {
   const README_PATH = path.join(rootDirectory, "README.md");
-  const FLY_TOML_PATH = path.join(rootDirectory, "fly.toml");
   const EXAMPLE_ENV_PATH = path.join(rootDirectory, ".env.example");
   const ENV_PATH = path.join(rootDirectory, ".env");
   const PACKAGE_JSON_PATH = path.join(rootDirectory, "package.json");
@@ -33,7 +32,6 @@ async function main({ rootDirectory }) {
     .replace(/[^a-zA-Z0-9-_]/g, "-");
 
   const [prodContent, readme, env, packageJson] = await Promise.all([
-    fs.readFile(FLY_TOML_PATH, "utf-8"),
     fs.readFile(README_PATH, "utf-8"),
     fs.readFile(EXAMPLE_ENV_PATH, "utf-8"),
     fs.readFile(PACKAGE_JSON_PATH, "utf-8"),
@@ -60,7 +58,6 @@ async function main({ rootDirectory }) {
     ) + "\n";
 
   await Promise.all([
-    fs.writeFile(FLY_TOML_PATH, toml.stringify(prodToml)),
     fs.writeFile(README_PATH, newReadme),
     fs.writeFile(ENV_PATH, newEnv),
     fs.writeFile(PACKAGE_JSON_PATH, newPackageJson),
