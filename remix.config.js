@@ -8,6 +8,8 @@ const basePath = process.env.REMIX_BASEPATH ?? "";
 module.exports = {
   cacheDirectory: "./node_modules/.cache/remix",
   ignoredRouteFiles: ["**/.*", "**/*.css", "**/*.test.{js,jsx,ts,tsx}"],
+  publicPath: `${basePath}/build/`,
+  assetsBuildDirectory: `public${basePath}/build`,
   routes: (defineRoutes) => {
     const baseRoutes = mountRoutes(basePath, "routes");
 
