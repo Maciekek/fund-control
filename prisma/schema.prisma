@@ -63,6 +63,8 @@ model Outgo {
     description String
     date  DateTime
 
+    tag Tag[]
+
     budget  Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     budgetId String
 }
@@ -73,6 +75,19 @@ model Income {
     description String
     date  DateTime
 
+    tag Tag[]
+
     budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     budgetId String
+}
+
+model Tag {
+    id String @id @default(cuid())
+    name String
+
+    outgo   Outgo   @relation(fields: [outgoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    outgoId String
+
+    income   Income   @relation(fields: [incomeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    incomeId String
 }

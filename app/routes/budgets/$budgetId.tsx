@@ -1,14 +1,16 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useCatch, useLoaderData, Outlet } from "@remix-run/react";
+import { Form, Link, useCatch, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import type { Budget, Income } from "~/models/budget.server";
+import type { Budget, Income, Outgo } from "~/models/budget.server";
 
 import {
   deleteBudget,
   deleteBudgetIncome,
+  deleteBudgetOutgo,
   getAllIncomes,
+  getAllOutgoes,
   getBudget,
 } from "~/models/budget.server";
 import { requireUserId } from "~/session.server";
@@ -17,6 +19,7 @@ import { format } from "date-fns";
 type LoaderData = {
   budget: Budget;
   incomes?: Income[] | null;
+  outgoes?: Outgo[] | null;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -25,11 +28,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const budget = await getBudget({ userId, id: params.budgetId });
   const incomes = await getAllIncomes(params.budgetId);
-  console.log(22, incomes);
+  const outgoes = await getAllOutgoes(params.budgetId);
+
   if (!budget) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json<LoaderData>({ budget, incomes: incomes || [] });
+  return json<LoaderData>({
+    budget,
+    incomes: incomes || [],
+    outgoes: outgoes || [],
+  });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -43,6 +51,13 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (intent === "delete_income") {
     const incomeId = formData.get("incomeId") as string;
     await deleteBudgetIncome({ id: incomeId, budgetId: params.budgetId });
+
+    return "/";
+  }
+
+  if (intent === "delete_outgo") {
+    const incomeId = formData.get("outgoId") as string;
+    await deleteBudgetOutgo({ id: incomeId, budgetId: params.budgetId });
 
     return "/";
   }
@@ -128,13 +143,13 @@ export default function NoteDetailsPage() {
                             scope="col"
                             className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                           >
-                            Date &amp; Time
+                            Amount
                           </th>
                           <th
                             scope="col"
                             className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                           >
-                            Amount
+                            Date &amp; Time
                           </th>
                           <th
                             scope="col"
@@ -153,12 +168,14 @@ export default function NoteDetailsPage() {
                                   {income.description}
                                 </span>
                               </td>
-                              <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
-                                {format(new Date(income.date), "PP")}
-                              </td>
                               <td className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900">
                                 {income.amount}
                               </td>
+
+                              <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
+                                {format(new Date(income.date), "PP")}
+                              </td>
+
                               <td className="cursor-pointer whitespace-nowrap p-4 text-sm">
                                 <Form method="post">
                                   <input
@@ -174,7 +191,7 @@ export default function NoteDetailsPage() {
                                     name={"intent"}
                                     value={"delete_income"}
                                   >
-                                    Delete (not implemented yet)
+                                    Delete
                                   </button>
                                 </Form>
                               </td>
@@ -201,12 +218,18 @@ export default function NoteDetailsPage() {
               </span>
             </div>
             <div className="flex-shrink-0">
-              <a
-                href="#"
+              <Link
+                to="outgoes"
                 className="rounded-lg p-2 text-sm font-medium text-cyan-600 hover:bg-gray-100"
               >
                 View all
-              </a>
+              </Link>
+              <Link
+                to="outgoes/add"
+                className="rounded-lg p-2 text-sm font-medium text-cyan-600 hover:bg-gray-100"
+              >
+                Add
+              </Link>
             </div>
           </div>
 
@@ -214,44 +237,92 @@ export default function NoteDetailsPage() {
             <div className="overflow-x-auto rounded-lg">
               <div className="inline-block min-w-full align-middle">
                 <div className="overflow-hidden shadow sm:rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  {data?.outgoes?.length === 0 ? (
+                    <div className={"text text-center"}>
+                      <div className={"text-underline text-zinc-500"}>
+                        Great! You have no outgoes
+                      </div>
+                      <div>
+                        <Link
+                          className={
+                            "rounded-lg p-1 text-sm font-medium text-cyan-600 hover:bg-gray-100"
+                          }
+                          to="outgoes/add"
                         >
-                          Transaction
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                        >
-                          Date &amp; Time
-                        </th>
-                        <th
-                          scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                        >
-                          Amount
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white">
-                      <tr>
-                        <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
-                          Payment from{" "}
-                          <span className="font-semibold">Bonnie Green</span>
-                        </td>
-                        <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
-                          Apr 23 ,2021
-                        </td>
-                        <td className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900">
-                          $2300
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                          Add your first outgo!
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                          >
+                            Transaction
+                          </th>
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                          >
+                            Date &amp; Time
+                          </th>
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                          >
+                            Amount
+                          </th>
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                          >
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white">
+                        {data?.outgoes?.map((outgo) => {
+                          return (
+                            <tr key={outgo.id}>
+                              <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
+                                <span className="font-semibold">
+                                  {outgo.description}
+                                </span>
+                              </td>
+                              <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">
+                                {format(new Date(outgo.date), "PP")}
+                              </td>
+                              <td className="whitespace-nowrap p-4 text-sm font-semibold text-gray-900">
+                                {outgo.amount}
+                              </td>
+                              <td>
+                                <Form method="post">
+                                  <input
+                                    type="text"
+                                    className={"hidden"}
+                                    name={"outgoId"}
+                                    value={outgo.id}
+                                    readOnly={true}
+                                  />
+                                  <button
+                                    type="submit"
+                                    className="whitespace-nowrap p-4 text-sm"
+                                    name={"intent"}
+                                    value={"delete_outgo"}
+                                  >
+                                    Delete
+                                  </button>
+                                </Form>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </div>
             </div>

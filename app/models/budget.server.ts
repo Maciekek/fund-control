@@ -1,10 +1,11 @@
-import type { Password, User, Budget, Income } from "@prisma/client";
+import type { Password, User, Budget, Income, Outgo } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
 export type { User } from "@prisma/client";
 export type { Budget } from "@prisma/client";
 export type { Income } from "@prisma/client";
+export type { Outgo } from "@prisma/client";
 
 export async function getAllBudgets(email: User["email"]) {
   const user = await prisma.user.findUnique({
@@ -19,6 +20,15 @@ export async function getAllBudgets(email: User["email"]) {
 
 export async function getAllIncomes(id: string) {
   const budget = await prisma.income.findMany({
+    where: { budgetId: id },
+    take: 15,
+  });
+
+  return budget;
+}
+
+export async function getAllOutgoes(id: string) {
+  const budget = await prisma.outgo.findMany({
     where: { budgetId: id },
     take: 15,
   });
@@ -92,5 +102,36 @@ export function deleteBudgetIncome({
 }: Pick<Income, "id"> & { budgetId: Budget["id"] }) {
   return prisma.income.deleteMany({
     where: { id, budgetId },
+  });
+}
+
+export function deleteBudgetOutgo({
+  id,
+  budgetId,
+}: Pick<Outgo, "id"> & { budgetId: Budget["id"] }) {
+  return prisma.outgo.deleteMany({
+    where: { id, budgetId },
+  });
+}
+
+export function addOutgo({
+  amount,
+  description,
+  date,
+  budgetId,
+}: Pick<Outgo, "amount" | "description" | "date"> & {
+  budgetId: Budget["id"];
+}) {
+  return prisma.outgo.create({
+    data: {
+      amount,
+      description,
+      date,
+      budget: {
+        connect: {
+          id: budgetId,
+        },
+      },
+    },
   });
 }
