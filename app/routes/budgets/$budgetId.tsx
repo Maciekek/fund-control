@@ -88,7 +88,7 @@ export default function NoteDetailsPage() {
       </div>
       <div
         className={
-          "grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+          "grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-2"
         }
       >
         <div className="rounded-lg bg-white p-4 shadow sm:p-6 xl:p-8 ">

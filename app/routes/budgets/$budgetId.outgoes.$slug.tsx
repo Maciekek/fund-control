@@ -1,7 +1,20 @@
-import { addOutgo } from "~/models/budget.server";
-import { ActionFunction, redirect } from "@remix-run/node";
+import { addOutgo, getAllOutgoes, getOutgo, updateOutgo } from "~/models/budget.server";
+import { ActionFunction, LoaderFunction, redirect, json } from "@remix-run/node";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useLoaderData } from "@remix-run/react";
+
+export const loader: LoaderFunction = async ({request, params}) => {
+  console.log(7,params );
+  if(params.slug === 'add') {
+    console.log(15, 'mam nulla')
+    return json({});
+  }
+
+  const outgo = await getOutgo(params.slug)
+  console.log(14, outgo);
+  return json({outgo})
+}
 
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
@@ -10,18 +23,28 @@ export const action: ActionFunction = async ({ request, params }) => {
   const description = formData.get("description");
   const date = formData.get("date") as string;
 
-  await addOutgo({
-    amount: Number(amount),
-    description: description!.toString(),
-    budgetId: params!.budgetId!,
-    date: new Date(date!),
-  });
+  console.log(22, params);
+  if(params.slug === 'add') {
+    await addOutgo({
+      amount: Number(amount),
+      description: description!.toString(),
+      budgetId: params!.budgetId!,
+      date: new Date(date!),
+    });
+  } else {
+    console.log(32, 'update');
+    await updateOutgo(params.slug!, {amount: Number(amount), description,  date: new Date(date)})
+  }
 
   return redirect(`/budgets/${params!.budgetId!}`);
 };
 
 export default function NewOutcome() {
-  const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
+  const data = useLoaderData();
+  console.log(43,'dupa');
+  console.log(44, data);
+  console.log(45, data.outgo?.date);
+  const [date, setDate] = useState<string>(data.outgo?.date ? format(new Date(data.outgo?.date), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd") );
   return (
     <div
       className={
@@ -33,7 +56,7 @@ export default function NewOutcome() {
           <h2 className="text-2xl font-bold text-gray-900 lg:text-3xl">
             Outcome
           </h2>
-          <form className="mt-8 space-y-6" method="post">
+          <form className="mt-8 space-y-6" method="post" key={data.outgo?.id ?? 'new'}>
             <div>
               <label
                 htmlFor="description"
@@ -44,6 +67,7 @@ export default function NewOutcome() {
               <input
                 type="text"
                 name="description"
+                defaultValue={data.outgo?.description}
                 id="description"
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
                 placeholder="Description"
@@ -62,6 +86,8 @@ export default function NewOutcome() {
                 type="number"
                 name="amount"
                 id="amount"
+                defaultValue={data.outgo?.amount}
+
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
                 placeholder="2000"
               />
@@ -79,6 +105,7 @@ export default function NewOutcome() {
                 type="date"
                 name={"date"}
                 value={date}
+                defaultValue={data.outgo?.date}
                 onChange={(event) => {
                   console.log(82, event.target.value);
                   setDate(event.target.value);
@@ -91,8 +118,9 @@ export default function NewOutcome() {
               type="submit"
               className="w-full rounded-lg bg-cyan-600 px-5 py-3 text-center text-base font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 sm:w-auto"
             >
-              Create
+              {data.outgo ? 'Update' : 'Create'}
             </button>
+
           </form>
         </div>
       </div>

@@ -1,16 +1,20 @@
-import { Form, Link } from "@remix-run/react";
+import { Form, NavLink } from "@remix-run/react";
 import { User } from "~/models/user.server";
-
+import C from "classnames";
 type HeaderProps = {
   user: User;
+  isVisibleOnMobile: boolean;
 };
 
-const Sidebar = ({ user }: HeaderProps) => {
+const Sidebar = ({ user, isVisibleOnMobile }: HeaderProps) => {
   return (
     <>
       <aside
         id="sidebar"
-        className="transition-width fixed top-0 left-0 z-20 flex hidden h-full w-64 flex-shrink-0 flex-col pt-16 duration-75 lg:flex"
+        className={C(
+          "transition-width fixed top-0 left-0 z-20 flex h-full w-64 flex-shrink-0 flex-col pt-16 duration-75 lg:flex",
+          { hidden: !isVisibleOnMobile }
+        )}
         aria-label="Sidebar"
       >
         <div className="relative flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white pt-0">
@@ -18,9 +22,13 @@ const Sidebar = ({ user }: HeaderProps) => {
             <div className="flex-1 space-y-1 divide-y bg-white px-3">
               <ul className="space-y-2 pb-2">
                 <li>
-                  <a
-                    href="/dashboard"
-                    className="group flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100"
+                  <NavLink
+                    to="/dashboard"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "group flex items-center rounded-lg bg-gray-100 p-2 text-base font-normal text-gray-900"
+                        : "group flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100"
+                    }
                   >
                     <svg
                       className="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
@@ -32,11 +40,15 @@ const Sidebar = ({ user }: HeaderProps) => {
                       <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
                     <span className="ml-3">Dashboard</span>
-                  </a>
+                  </NavLink>
 
-                  <a
-                    href="/budgets"
-                    className="group flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100"
+                  <NavLink
+                    to="/budgets"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "group flex items-center rounded-lg bg-gray-100 p-2 text-base font-normal text-gray-900"
+                        : "group flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100"
+                    }
                   >
                     <svg
                       className="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
@@ -48,11 +60,15 @@ const Sidebar = ({ user }: HeaderProps) => {
                       <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
                     <span className="ml-3">Budgets</span>
-                  </a>
+                  </NavLink>
 
-                  <a
-                    href="/assets"
-                    className="group flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100"
+                  <NavLink
+                    to="/assets"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "group flex items-center rounded-lg bg-gray-100 p-2 text-base font-normal text-gray-900"
+                        : "group flex items-center rounded-lg p-2 text-base font-normal text-gray-900 hover:bg-gray-100"
+                    }
                   >
                     <svg
                       className="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
@@ -64,7 +80,7 @@ const Sidebar = ({ user }: HeaderProps) => {
                       <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
                     <span className="ml-3">Assets</span>
-                  </a>
+                  </NavLink>
                 </li>
               </ul>
               <div className="space-y-2 pt-2">
@@ -102,7 +118,9 @@ const Sidebar = ({ user }: HeaderProps) => {
       </aside>
 
       <div
-        className="fixed inset-0 z-10 hidden bg-gray-900 opacity-50"
+        className={C("fixed inset-0 z-10 hidden bg-gray-900 opacity-50", {
+          hidden: !isVisibleOnMobile,
+        })}
         id="sidebarBackdrop"
       />
     </>

@@ -49,7 +49,7 @@ export default function NewOutcome() {
 
   return (
     <>
-      <main>
+      <div className={'rounded-lg bg-white p-4 shadow'}>
         <div className="block items-center justify-between border-b border-gray-200 sm:flex lg:mt-1.5">
           <div className="mb-1 w-full">
             <div className="mb-4">
@@ -172,9 +172,9 @@ export default function NewOutcome() {
                             </td>
 
                             <td className="max-w-xs	space-x-2 whitespace-nowrap p-4 text-right">
-                              <button
-                                type="button"
-                                data-modal-toggle="user-modal"
+                              <Link
+
+                                to={outgo.id}
                                 className="inline-flex items-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200"
                               >
                                 <svg
@@ -191,7 +191,7 @@ export default function NewOutcome() {
                                   />
                                 </svg>
                                 Edit
-                              </button>
+                              </Link>
 
                               <Form method="post" className={"inline-block "}>
                                 <input
@@ -303,7 +303,7 @@ export default function NewOutcome() {
         {/*    </a>*/}
         {/*  </div>*/}
         {/*</div>*/}
-      </main>
+      </div>
     </>
   );
 }

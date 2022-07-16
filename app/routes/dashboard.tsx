@@ -7,6 +7,7 @@ import { requireUser } from "~/session.server";
 import { useLoaderData } from "@remix-run/react";
 import { Content } from "~/components/content";
 import { Box } from "~/components/box";
+import { useState } from "react";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request);
@@ -17,14 +18,9 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function Dashboard() {
-  const user = useUser();
   const balance = useLoaderData() as any;
-  console.log(23, balance);
   return (
     <>
-      <Header user={user} />
-      <Sidebar user={user} />
-      {/*<div className={'flex h-full min-h-screen flex-col'}>*/}
       <Content>
         <div>
           <Box mainText={balance} secondaryText={"Your total balance"} />

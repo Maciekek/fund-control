@@ -11,8 +11,8 @@ export async function getAllBudgets(email: User["email"]) {
   const user = await prisma.user.findUnique({
     where: { email },
     include: {
-      budget: true,
-    },
+      budget: true
+    }
   });
 
   return user?.budget;
@@ -21,7 +21,7 @@ export async function getAllBudgets(email: User["email"]) {
 export async function getAllIncomes(id: string) {
   const budget = await prisma.income.findMany({
     where: { budgetId: id },
-    take: 15,
+    take: 15
   });
 
   return budget;
@@ -30,25 +30,34 @@ export async function getAllIncomes(id: string) {
 export async function getAllOutgoes(id: string) {
   const budget = await prisma.outgo.findMany({
     where: { budgetId: id },
-    take: 15,
+    take: 15
   });
 
   return budget;
 }
 
+export async function getOutgo(id: string) {
+  const outgo = await prisma.outgo.findUnique({
+    where: { id }
+  });
+
+  return outgo;
+}
+
+
 export function deleteBudget({
-  id,
-  userId,
-}: Pick<Budget, "id"> & { userId: User["id"] }) {
+                               id,
+                               userId
+                             }: Pick<Budget, "id"> & { userId: User["id"] }) {
   return prisma.budget.deleteMany({
-    where: { id, userId },
+    where: { id, userId }
   });
 }
 
 export function createBudget({
-  name,
-  userId,
-}: Pick<Budget, "name"> & {
+                               name,
+                               userId
+                             }: Pick<Budget, "name"> & {
   userId: User["id"];
 }) {
   return prisma.budget.create({
@@ -56,30 +65,30 @@ export function createBudget({
       name,
       user: {
         connect: {
-          id: userId,
-        },
-      },
-    },
+          id: userId
+        }
+      }
+    }
   });
 }
 
 export function getBudget({
-  id,
-  userId,
-}: Pick<Budget, "id"> & {
+                            id,
+                            userId
+                          }: Pick<Budget, "id"> & {
   userId: User["id"];
 }) {
   return prisma.budget.findFirst({
-    where: { id, userId },
+    where: { id, userId }
   });
 }
 
 export function addIncome({
-  amount,
-  description,
-  date,
-  budgetId,
-}: Pick<Income, "amount" | "description" | "date"> & {
+                            amount,
+                            description,
+                            date,
+                            budgetId
+                          }: Pick<Income, "amount" | "description" | "date"> & {
   budgetId: Budget["id"];
 }) {
   return prisma.income.create({
@@ -89,37 +98,37 @@ export function addIncome({
       date,
       budget: {
         connect: {
-          id: budgetId,
-        },
-      },
-    },
+          id: budgetId
+        }
+      }
+    }
   });
 }
 
 export function deleteBudgetIncome({
-  id,
-  budgetId,
-}: Pick<Income, "id"> & { budgetId: Budget["id"] }) {
+                                     id,
+                                     budgetId
+                                   }: Pick<Income, "id"> & { budgetId: Budget["id"] }) {
   return prisma.income.deleteMany({
-    where: { id, budgetId },
+    where: { id, budgetId }
   });
 }
 
 export function deleteBudgetOutgo({
-  id,
-  budgetId,
-}: Pick<Outgo, "id"> & { budgetId: Budget["id"] }) {
+                                    id,
+                                    budgetId
+                                  }: Pick<Outgo, "id"> & { budgetId: Budget["id"] }) {
   return prisma.outgo.deleteMany({
-    where: { id, budgetId },
+    where: { id, budgetId }
   });
 }
 
 export function addOutgo({
-  amount,
-  description,
-  date,
-  budgetId,
-}: Pick<Outgo, "amount" | "description" | "date"> & {
+                           amount,
+                           description,
+                           date,
+                           budgetId
+                         }: Pick<Outgo, "amount" | "description" | "date"> & {
   budgetId: Budget["id"];
 }) {
   return prisma.outgo.create({
@@ -129,9 +138,24 @@ export function addOutgo({
       date,
       budget: {
         connect: {
-          id: budgetId,
-        },
-      },
-    },
+          id: budgetId
+        }
+      }
+    }
+  });
+}
+
+export function updateOutgo(id: string, {
+  amount,
+  description,
+  date,
+}: Pick<Outgo, "amount" | "description" | "date"> ) {
+  return prisma.outgo.update({
+    data: {
+      amount,
+      description,
+      date,
+
+    }, where: {id}
   });
 }
