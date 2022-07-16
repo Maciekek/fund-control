@@ -9,15 +9,20 @@ import {
   deleteBudget,
   deleteBudgetIncome,
   deleteBudgetOutgo,
-  getAllIncomes,
-  getAllOutgoes,
   getBudget,
+  getLatestIncomes,
+  getLatestOutgoes,
+  getTotalIncome,
+  getTotalOutgo,
 } from "~/models/budget.server";
 import { requireUserId } from "~/session.server";
 import { format } from "date-fns";
+import { Box } from "~/components/box";
 
 type LoaderData = {
   budget: Budget;
+  totalIncome: number;
+  totalOutgo: number;
   incomes?: Income[] | null;
   outgoes?: Outgo[] | null;
 };
@@ -27,9 +32,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.budgetId, "noteId not found");
 
   const budget = await getBudget({ userId, id: params.budgetId });
-  const incomes = await getAllIncomes(params.budgetId);
-  const outgoes = await getAllOutgoes(params.budgetId);
+  const incomes = await getLatestIncomes(params.budgetId);
+  const outgoes = await getLatestOutgoes(params.budgetId);
 
+  const totalIncome = await getTotalIncome(params.budgetId);
+  const totalOutgo = await getTotalOutgo(params.budgetId);
+  console.log(38, totalIncome);
   if (!budget) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -37,6 +45,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     budget,
     incomes: incomes || [],
     outgoes: outgoes || [],
+    totalIncome,
+    totalOutgo,
   });
 };
 
@@ -69,7 +79,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function NoteDetailsPage() {
   const data = useLoaderData() as LoaderData;
-
+  console.log(80, data);
   return (
     <div className={"px-4 pt-6"}>
       <div>
@@ -85,6 +95,21 @@ export default function NoteDetailsPage() {
           </Form>
         </div>
         <hr className="my-4" />
+      </div>
+
+      <div
+        className={
+          "grid w-full grid-cols-1 gap-4 pb-4 xl:grid-cols-3 2xl:grid-cols-2"
+        }
+      >
+        <Box
+          mainText={data.totalIncome.toString()}
+          secondaryText={"Total incomes"}
+        />
+        <Box
+          mainText={data.totalOutgo.toString()}
+          secondaryText={"Total outgoes"}
+        />
       </div>
       <div
         className={

@@ -8,7 +8,7 @@ import {
 import invariant from "tiny-invariant";
 import {
   deleteBudgetOutgo,
-  getAllOutgoes,
+  getLatestOutgoes,
   Outgo,
 } from "~/models/budget.server";
 import { format } from "date-fns";
@@ -37,7 +37,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.budgetId, "noteId not found");
 
-  const outgoes = await getAllOutgoes(params.budgetId);
+  const outgoes = await getLatestOutgoes(params.budgetId);
 
   return json<LoaderData>({
     outgoes: outgoes || [],
@@ -49,7 +49,7 @@ export default function NewOutcome() {
 
   return (
     <>
-      <div className={'rounded-lg bg-white p-4 shadow'}>
+      <div className={"rounded-lg bg-white p-4 shadow"}>
         <div className="block items-center justify-between border-b border-gray-200 sm:flex lg:mt-1.5">
           <div className="mb-1 w-full">
             <div className="mb-4">
@@ -173,7 +173,6 @@ export default function NewOutcome() {
 
                             <td className="max-w-xs	space-x-2 whitespace-nowrap p-4 text-right">
                               <Link
-
                                 to={outgo.id}
                                 className="inline-flex items-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200"
                               >
