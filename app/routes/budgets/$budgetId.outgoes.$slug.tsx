@@ -1,8 +1,4 @@
-import {
-  addOutgo,
-  getOutgo,
-  updateOutgo,
-} from "~/models/budget.server";
+import { addOutgo, getOutgo, updateOutgo } from "~/models/budget.server";
 import {
   ActionFunction,
   LoaderFunction,
@@ -16,12 +12,11 @@ import { useLoaderData } from "@remix-run/react";
 export const loader: LoaderFunction = async ({ request, params }) => {
   console.log(7, params);
   if (params.slug === "add") {
-    console.log(15, "mam nulla");
     return json({});
   }
 
   const outgo = await getOutgo(params.slug!);
-  console.log(14, outgo);
+
   return json({ outgo });
 };
 
@@ -32,7 +27,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   const description = formData.get("description");
   const date = formData.get("date") as string;
 
-  console.log(22, params);
   if (params.slug === "add") {
     await addOutgo({
       amount: Number(amount),
@@ -53,14 +47,13 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function NewOutcome() {
   const data = useLoaderData();
-  console.log(43, "dupa");
-  console.log(44, data);
-  console.log(45, data.outgo?.date);
+
   const [date, setDate] = useState<string>(
     data.outgo?.date
       ? format(new Date(data.outgo?.date), "yyyy-MM-dd")
       : format(new Date(), "yyyy-MM-dd")
   );
+
   return (
     <div
       className={
