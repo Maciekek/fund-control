@@ -124,6 +124,7 @@ export default function NewOutcome() {
               <input
                 type="text"
                 name="description"
+                autoComplete={"off"}
                 defaultValue={data.outgo?.description}
                 id="description"
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
@@ -141,6 +142,7 @@ export default function NewOutcome() {
               </label>
               <input
                 type="number"
+                autoComplete={"off"}
                 name="amount"
                 id="amount"
                 defaultValue={data.outgo?.amount}

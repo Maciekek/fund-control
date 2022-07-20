@@ -20,7 +20,6 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function New() {
-  const actionData = useActionData() as ActionData;
 
   return (
     <div
@@ -33,7 +32,7 @@ export default function New() {
           <h2 className="text-2xl font-bold text-gray-900 lg:text-3xl">
             New budget
           </h2>
-          <form className="mt-8 space-y-6" method="post">
+          <form className="mt-8 space-y-6" method="post" autoComplete={"off"}>
             <div>
               <label
                 htmlFor="name"

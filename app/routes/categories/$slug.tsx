@@ -115,6 +115,7 @@ export default function NewNotePage() {
               return (
                 <div className={"flex items-center"} key={subcategory.id}>
                   <input
+                    autoComplete={"off"}
                     type="text"
                     name={`subcategories`}
                     defaultValue={subcategory.value}

@@ -33,7 +33,7 @@ export default function NewIncome() {
           <h2 className="text-2xl font-bold text-gray-900 lg:text-3xl">
             Planned income
           </h2>
-          <form className="mt-8 space-y-6" method="post">
+          <form className="mt-8 space-y-6" method="post" autoComplete={"off"}>
             <div>
               <label
                 htmlFor="description"
