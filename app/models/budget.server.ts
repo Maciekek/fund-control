@@ -1,6 +1,8 @@
 import type { Password, User, Budget, Income, Outgo } from "@prisma/client";
 
 import { prisma } from "~/db.server";
+import { groupBy } from "~/helpers/array";
+import { getAllOutgoCategories } from "~/models/outgoCategories.server";
 
 export type { User } from "@prisma/client";
 export type { Budget } from "@prisma/client";
@@ -190,4 +192,38 @@ export function updateOutgo(
     },
     where: { id },
   });
+}
+
+export async function getGroupedTotalOutgoes(id: string, userEmail: string) {
+  const outgoes = await prisma.outgo.findMany({
+    where: { budgetId: id },
+  });
+
+  const categories = await getAllOutgoCategories(userEmail);
+
+  console.log(200, outgoes);
+  console.log(205, categories);
+  const groups = groupBy<Outgo>(outgoes, (outgo) => outgo.outgoCategoryId);
+
+  const groupKeys = Object.keys(groups);
+  console.log(207, groupKeys);
+
+  const groupsWithCategoryAsName = groupKeys.reduce((result: any, groupKey) => {
+    const category = categories?.find(({ id }) => id === groupKey);
+    const outgoesByCategory = outgoes.filter(
+      (outgo) => outgo.outgoCategoryId === category?.id
+    );
+
+    const categoryTotal = outgoesByCategory.reduce((sum, outgo) => {
+      return sum + outgo.amount;
+    }, 0);
+
+    const name = category?.name || "unknown category name";
+
+    result[name] = categoryTotal;
+
+    return result;
+  }, {});
+
+  return groupsWithCategoryAsName;
 }

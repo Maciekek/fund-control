@@ -10,14 +10,16 @@ import {
   deleteBudgetIncome,
   deleteBudgetOutgo,
   getBudget,
+  getGroupedTotalOutgoes,
   getLatestIncomes,
   getLatestOutgoes,
   getTotalIncome,
   getTotalOutgo,
 } from "~/models/budget.server";
-import { requireUserId } from "~/session.server";
+import { requireUser, requireUserId } from "~/session.server";
 import { format } from "date-fns";
 import { Box } from "~/components/box";
+import { TopTable } from "~/components/widgets/topTable";
 
 type LoaderData = {
   budget: Budget;
@@ -25,10 +27,11 @@ type LoaderData = {
   totalOutgo: number;
   incomes?: Income[] | null;
   outgoes?: Outgo[] | null;
+  groupedTotalOutgoes?: any;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+  const { id: userId, email: userEmail } = await requireUser(request);
   invariant(params.budgetId, "noteId not found");
 
   const budget = await getBudget({ userId, id: params.budgetId });
@@ -37,7 +40,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const totalIncome = await getTotalIncome(params.budgetId);
   const totalOutgo = await getTotalOutgo(params.budgetId);
-  console.log(38, totalIncome);
+  const groupedTotalOutgoes = await getGroupedTotalOutgoes(
+    params.budgetId,
+    userEmail
+  );
+
+  console.log(38, "groupedTotalOutgoes", groupedTotalOutgoes);
   if (!budget) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -47,6 +55,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     outgoes: outgoes || [],
     totalIncome,
     totalOutgo,
+    groupedTotalOutgoes,
   });
 };
 
@@ -232,7 +241,7 @@ export default function NoteDetailsPage() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-white p-4 shadow sm:p-6 xl:p-8 ">
+        <div className="rounded-lg bg-white p-4 shadow sm:p-6 xl:p-8">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h3 className="mb-2 text-xl font-bold text-gray-900">
@@ -353,6 +362,8 @@ export default function NoteDetailsPage() {
             </div>
           </div>
         </div>
+        <div className="rounded-lg bg-white p-4 shadow sm:p-6 xl:p-8" />
+        <TopTable data={data.groupedTotalOutgoes} total={data.totalOutgo} />
       </div>
     </div>
   );
