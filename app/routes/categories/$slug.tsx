@@ -8,6 +8,7 @@ import { requireUserId } from "~/session.server";
 import {
   createOutgoCategory,
   getOutgoCategory,
+  updateOutgoCategory,
 } from "~/models/outgoCategories.server";
 import { TrashIcon, PlusCircleIcon } from "@heroicons/react/solid";
 
@@ -35,12 +36,18 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const name = formData.get("name") as string;
   const subcategories = formData.getAll("subcategories").toString();
-
-  await createOutgoCategory({
-    name,
-    subcategories,
-    userId,
-  });
+  if (params.slug === "new") {
+    await createOutgoCategory({
+      name,
+      subcategories,
+      userId,
+    });
+  } else {
+    await updateOutgoCategory(params.slug!.toString(), {
+      name,
+      subcategories,
+    });
+  }
 
   return redirect(`/categories`);
 };
@@ -150,7 +157,7 @@ export default function NewNotePage() {
               type="submit"
               className="w-full rounded-lg bg-cyan-600 px-5 py-3 text-center text-base font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 sm:w-auto"
             >
-              Create
+              {data.name ? "Update" : "Create"}
             </button>
           </form>
         </div>

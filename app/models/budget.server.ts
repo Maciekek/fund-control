@@ -42,6 +42,7 @@ export async function getLatestOutgoes(id: string) {
   const outgoes = await prisma.outgo.findMany({
     where: { budgetId: id },
     take: 15,
+    include: { outgoCategory: true },
   });
 
   return outgoes;
@@ -60,6 +61,7 @@ export async function getTotalOutgo(id: string) {
 export async function getOutgo(id: string) {
   const outgo = await prisma.outgo.findUnique({
     where: { id },
+    include: { outgoCategory: true },
   });
 
   return outgo;
@@ -148,7 +150,12 @@ export function addOutgo({
   description,
   date,
   budgetId,
-}: Pick<Outgo, "amount" | "description" | "date"> & {
+  outgoCategoryId,
+  subcategory,
+}: Pick<
+  Outgo,
+  "amount" | "description" | "date" | "outgoCategoryId" | "subcategory"
+> & {
   budgetId: Budget["id"];
 }) {
   return prisma.outgo.create({
@@ -156,9 +163,15 @@ export function addOutgo({
       amount,
       description,
       date,
+      subcategory,
       budget: {
         connect: {
           id: budgetId,
+        },
+      },
+      outgoCategory: {
+        connect: {
+          id: outgoCategoryId,
         },
       },
     },

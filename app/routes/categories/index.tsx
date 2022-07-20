@@ -49,7 +49,7 @@ export default function OutgoCategoriesIndexPage() {
           <div className="mb-1 w-full">
             <div className="mb-4">
               <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
-                All outgoes
+                All categories
               </h1>
             </div>
             <div className="sm:flex">
@@ -70,7 +70,7 @@ export default function OutgoCategoriesIndexPage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Add outcome
+                  Add category
                 </Link>
               </div>
             </div>

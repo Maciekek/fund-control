@@ -30,19 +30,6 @@ export function getOutgoCategory({
     where: { id, userId },
   });
 }
-// export async function getOutgoCategory(
-//   email: User["email"],
-//   categoryId: string
-// ) {
-//   const user = await prisma.user.findUnique({
-//     where: { email },
-//     include: {
-//       outgoCategories: true,
-//     },
-//   });
-//
-//   return user?.outgoCategories;
-// }
 
 export function createOutgoCategory({
   name,
@@ -66,6 +53,19 @@ export function createOutgoCategory({
 
 export function deleteOutgoCategory({ id }: Pick<OutgoCategory, "id">) {
   return prisma.outgoCategory.deleteMany({
+    where: { id },
+  });
+}
+
+export function updateOutgoCategory(
+  id: string,
+  { name, subcategories }: Pick<OutgoCategory, "name" | "subcategories">
+) {
+  return prisma.outgoCategory.update({
+    data: {
+      name,
+      subcategories,
+    },
     where: { id },
   });
 }

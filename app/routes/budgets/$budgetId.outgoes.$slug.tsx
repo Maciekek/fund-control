@@ -8,16 +8,22 @@ import {
 import { format } from "date-fns";
 import { useState } from "react";
 import { useLoaderData } from "@remix-run/react";
+import { getAllOutgoCategories } from "~/models/outgoCategories.server";
+import { getUser, getUserId } from "~/session.server";
+import type { OutgoCategory } from "@prisma/client";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   console.log(7, params);
+  const user = await getUser(request);
+  const outgoCategories = await getAllOutgoCategories(user!.email);
+
   if (params.slug === "add") {
-    return json({});
+    return json({ outgoCategories });
   }
 
   const outgo = await getOutgo(params.slug!);
 
-  return json({ outgo });
+  return json({ outgo, outgoCategories });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -27,12 +33,16 @@ export const action: ActionFunction = async ({ request, params }) => {
   const description = formData.get("description");
   const date = formData.get("date") as string;
 
+  console.log(35, " cat:", formData.get("subcategory"));
+  const outgoCategory = JSON.parse(formData.get("subcategory") as string);
   if (params.slug === "add") {
     await addOutgo({
       amount: Number(amount),
       description: description!.toString(),
       budgetId: params!.budgetId!,
       date: new Date(date!),
+      outgoCategoryId: outgoCategory.categoryId,
+      subcategory: outgoCategory.subcategory.toString(),
     });
   } else {
     await updateOutgo(params.slug!, {
@@ -47,12 +57,46 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function NewOutcome() {
   const data = useLoaderData();
-
+  console.log(56, data);
   const [date, setDate] = useState<string>(
     data.outgo?.date
       ? format(new Date(data.outgo?.date), "yyyy-MM-dd")
       : format(new Date(), "yyyy-MM-dd")
   );
+  const getSubcategoryOptions = (outgoCategory: OutgoCategory) => {
+    const subcategories = outgoCategory.subcategories.split(",");
+    console.log(65, subcategories);
+    if (subcategories.length > 1) {
+      return subcategories.map((subcat) => {
+        return (
+          <option
+            key={subcat}
+            value={JSON.stringify({
+              categoryId: outgoCategory.id,
+              subcategory: subcategories[0],
+            })}
+            label={subcat}
+          />
+        );
+      });
+    }
+
+    if (subcategories.length === 1) {
+      console.log(73, subcategories[0]);
+      return (
+        <option
+          key={subcategories[0]}
+          label={subcategories[0]}
+          value={JSON.stringify({
+            categoryId: outgoCategory.id,
+            subcategory: subcategories[0],
+          })}
+        />
+      );
+    }
+
+    return;
+  };
 
   return (
     <div
@@ -126,6 +170,26 @@ export default function NewOutcome() {
               />
             </div>
 
+            <div>
+              <label
+                htmlFor="category"
+                className="mb-2 block text-sm font-medium text-gray-900"
+              >
+                Category
+              </label>
+              <select
+                name={"subcategory"}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+              >
+                {data.outgoCategories.map((category: OutgoCategory) => {
+                  return (
+                    <optgroup label={category.name} key={category.name}>
+                      {getSubcategoryOptions(category)}
+                    </optgroup>
+                  );
+                })}
+              </select>
+            </div>
             <button
               type="submit"
               className="w-full rounded-lg bg-cyan-600 px-5 py-3 text-center text-base font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 sm:w-auto"

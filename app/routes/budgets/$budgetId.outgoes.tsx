@@ -12,9 +12,12 @@ import {
   Outgo,
 } from "~/models/budget.server";
 import { format } from "date-fns";
+import type { OutgoCategory } from "@prisma/client";
+
+type OutgoWithCategories = Outgo & { outgoCategory: OutgoCategory };
 
 type LoaderData = {
-  outgoes?: Outgo[] | null;
+  outgoes?: OutgoWithCategories[] | null;
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -143,8 +146,16 @@ export default function NewOutcome() {
                           scope="col"
                           className="p-4 text-left text-xs font-medium uppercase text-gray-500"
                         >
+                          Category
+                        </th>
+
+                        <th
+                          scope="col"
+                          className="p-4 text-left text-xs font-medium uppercase text-gray-500"
+                        >
                           Date
                         </th>
+
                         <th
                           scope="col"
                           className="p-4 text-right text-xs font-medium uppercase text-gray-500"
@@ -164,10 +175,16 @@ export default function NewOutcome() {
                                 </div>
                               </div>
                             </td>
-                            <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
+                            <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
                               {outgo.amount}
                             </td>
-                            <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
+                            <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
+                              <span className="font-medium">
+                                {outgo.outgoCategory.name}
+                              </span>
+                              : {outgo.subcategory}
+                            </td>
+                            <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
                               {format(new Date(outgo.date), "PP")}
                             </td>
 
