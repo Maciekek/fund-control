@@ -37,7 +37,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   if (params.slug === "add") {
     await addOutgo({
-      amount: Number(amount),
+      amount: Number(Number(amount).toPrecision(3)),
       description: description!.toString(),
       budgetId: params!.budgetId!,
       date: new Date(date!),
@@ -46,7 +46,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     });
   } else {
     await updateOutgo(params.slug!, {
-      amount: Number(amount),
+      amount: Number(Number(amount).toPrecision(3)),
       description: description!.toString(),
       date: new Date(date),
       subcategory: outgoCategory.subcategory.toString(),
@@ -67,6 +67,12 @@ export default function NewOutcome() {
   );
 
   useEffect(() => {
+    document.addEventListener("wheel", function (event) {
+      if (document.activeElement.type === "number") {
+        document.activeElement.blur();
+      }
+    });
+
     if (localStorage.getItem("last-used-date")) {
       setDate(localStorage.getItem("last-used-date"));
     }

@@ -26,7 +26,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.budgetId, "budgetId not found");
 
   const intent = formData.get("intent");
-  console.log(26, "aaaa", params.budgetId);
+
   if (intent === "delete_outgo") {
     const outgoId = formData.get("outgoId") as string;
     await deleteBudgetOutgo({ id: outgoId, budgetId: params.budgetId });
@@ -166,7 +166,6 @@ export default function NewOutcome() {
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
                       {data.outgoes?.map((outgo) => {
-                        console.log(169, outgo.description.length > 0);
                         return (
                           <tr className="hover:bg-gray-100" key={outgo.id}>
                             <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
