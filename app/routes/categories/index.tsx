@@ -1,4 +1,10 @@
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useSubmit,
+} from "@remix-run/react";
 import {
   ActionFunction,
   json,
@@ -9,23 +15,30 @@ import {
   OutgoCategory,
   getAllOutgoCategories,
   deleteOutgoCategory,
+  createOutgoCategory,
 } from "~/models/outgoCategories.server";
+
 import { requireUser } from "~/session.server";
-import invariant from "tiny-invariant";
-import { deleteBudgetOutgo } from "~/models/budget.server";
-import { PencilIcon, TrashIcon } from "@heroicons/react/solid";
+import {
+  PencilIcon,
+  TrashIcon,
+  DownloadIcon,
+  UploadIcon,
+} from "@heroicons/react/solid";
 import * as React from "react";
+import { saveAs } from "file-saver";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request);
 
   const categories = await getAllOutgoCategories(user.email);
-  console.log(15, categories);
+
   return json({ categories });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
+  const user = await requireUser(request);
 
   const intent = formData.get("intent");
   const categoryId = formData.get("categoryId") as string;
@@ -36,12 +49,30 @@ export const action: ActionFunction = async ({ request, params }) => {
     return "/";
   }
 
+  if (intent === "upload_categories") {
+    const categories = JSON.parse(
+      formData.get("categories") as string
+    ) as OutgoCategory[];
+
+    categories.map(async (category) => {
+      await createOutgoCategory({
+        name: category.name,
+        subcategories: category.subcategories,
+        userId: user.id,
+      });
+    });
+
+    return "/";
+  }
+
   return redirect("/budgets/params.budgetId");
 };
 
 export default function OutgoCategoriesIndexPage() {
   const data = useLoaderData();
-  console.log(16, data.categories);
+
+  const submit = useSubmit();
+
   return (
     <>
       <div className={"rounded-lg bg-white p-4 shadow"}>
@@ -54,6 +85,64 @@ export default function OutgoCategoriesIndexPage() {
             </div>
             <div className="sm:flex">
               <div className="ml-auto flex items-center space-x-2 sm:space-x-3">
+                <input
+                  type="file"
+                  className={"hidden"}
+                  name={"categoryId"}
+                  id={"file_upload"}
+                  readOnly={true}
+                  onChange={(e) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      console.log(JSON.parse(event.currentTarget.result));
+                      const formData = new FormData();
+
+                      formData.set("intent", "upload_categories");
+                      formData.set("categories", event.currentTarget.result);
+                      submit(formData, {
+                        encType: "multipart/form-data",
+                        method: "POST",
+                      });
+                    };
+
+                    reader.readAsText(e!.target!.files![0]);
+                  }}
+                />
+
+                <button
+                  type="submit"
+                  name={"intent"}
+                  onClick={() => {
+                    document.querySelector("#file_upload")?.click();
+                  }}
+                  value={"upload_categories"}
+                  className="inline-flex cursor-pointer items-center py-2 text-center "
+                >
+                  <UploadIcon className="h-5 w-5 cursor-pointer " />
+                </button>
+
+                <button
+                  type="submit"
+                  onClick={() => {
+                    const categories = [...data.categories].map((cat) => {
+                      const category = { ...cat };
+                      delete category.id;
+                      delete category.userId;
+                      return category;
+                    });
+
+                    const blob = new Blob([JSON.stringify(categories)], {
+                      type: "text/plain;charset=utf-8",
+                    });
+                    saveAs(blob, "categories_export.txt");
+                  }}
+                  name={"intent"}
+                  value={"export_all_categories"}
+                  className="inline-flex cursor-pointer items-center py-2 text-center "
+                >
+                  <DownloadIcon className="h-5 w-5 cursor-pointer" />
+                </button>
+
                 <Link
                   to="new"
                   className="inline-flex w-1/2 items-center justify-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 sm:w-auto"
