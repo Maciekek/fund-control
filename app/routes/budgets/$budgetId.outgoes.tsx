@@ -166,12 +166,15 @@ export default function NewOutcome() {
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
                       {data.outgoes?.map((outgo) => {
+                        console.log(169, outgo.description.length > 0);
                         return (
                           <tr className="hover:bg-gray-100" key={outgo.id}>
                             <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
                               <div className="text-sm font-normal text-gray-500">
                                 <div className="text-base font-semibold text-gray-900">
-                                  {outgo.description}
+                                  {outgo.description.length > 0
+                                    ? outgo.description
+                                    : outgo.outgoCategory.name}
                                 </div>
                               </div>
                             </td>

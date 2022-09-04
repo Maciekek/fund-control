@@ -27,6 +27,7 @@ import {
 } from "@heroicons/react/solid";
 import * as React from "react";
 import { saveAs } from "file-saver";
+import { toast } from "react-toastify";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request);
@@ -99,6 +100,7 @@ export default function OutgoCategoriesIndexPage() {
 
                       formData.set("intent", "upload_categories");
                       formData.set("categories", event.currentTarget.result);
+
                       submit(formData, {
                         encType: "multipart/form-data",
                         method: "POST",
@@ -112,6 +114,7 @@ export default function OutgoCategoriesIndexPage() {
                 <button
                   type="submit"
                   name={"intent"}
+                  title={"Upload categories"}
                   onClick={() => {
                     document.querySelector("#file_upload")?.click();
                   }}
@@ -130,14 +133,19 @@ export default function OutgoCategoriesIndexPage() {
                       delete category.userId;
                       return category;
                     });
-
-                    const blob = new Blob([JSON.stringify(categories)], {
-                      type: "text/plain;charset=utf-8",
-                    });
-                    saveAs(blob, "categories_export.txt");
+                    toast("Unexpected error");
+                    try {
+                      const blob = new Blob([JSON.stringify(categories)], {
+                        type: "text/plain;charset=utf-8",
+                      });
+                      saveAs(blob, "categories_export.txt");
+                    } catch {
+                      toast("Unexpected error");
+                    }
                   }}
                   name={"intent"}
                   value={"export_all_categories"}
+                  title={"Export categories"}
                   className="inline-flex cursor-pointer items-center py-2 text-center "
                 >
                   <DownloadIcon className="h-5 w-5 cursor-pointer" />
@@ -178,7 +186,7 @@ export default function OutgoCategoriesIndexPage() {
                         <div>
                           <Link
                             className="rounded-lg p-1 text-sm font-medium text-cyan-600 hover:bg-gray-100"
-                            to="add"
+                            to="new"
                           >
                             Add your first category!
                           </Link>
@@ -247,6 +255,7 @@ export default function OutgoCategoriesIndexPage() {
                                 <button
                                   type="submit"
                                   name={"intent"}
+                                  title={"Delete"}
                                   value={"delete_outgo_category"}
                                   data-modal-toggle="delete-user-modal"
                                   className="inline-flex cursor-pointer items-center py-2 text-center "

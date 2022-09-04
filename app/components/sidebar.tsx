@@ -23,7 +23,7 @@ const Sidebar = ({ user, isVisibleOnMobile }: HeaderProps) => {
               <ul className="space-y-2 pb-2">
                 <li>
                   <NavLink
-                    to="/dashboard"
+                    to="/"
                     className={({ isActive }) =>
                       isActive
                         ? "group flex items-center rounded-lg bg-gray-100 p-2 text-base font-normal text-gray-900"

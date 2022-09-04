@@ -319,11 +319,14 @@ export default function NoteDetailsPage() {
                       </thead>
                       <tbody className="bg-white">
                         {data?.outgoes?.map((outgo) => {
+                          console.log(322, outgo);
                           return (
                             <tr key={outgo.id}>
                               <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
                                 <span className="font-semibold">
-                                  {outgo.description}
+                                  {outgo.description.length > 0
+                                    ? outgo.description
+                                    : outgo?.outgoCategory?.name}
                                 </span>
                               </td>
                               <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-500">

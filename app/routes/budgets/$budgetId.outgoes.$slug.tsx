@@ -129,7 +129,6 @@ export default function NewOutcome() {
                 id="description"
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
                 placeholder="Description"
-                required
               />
             </div>
 
