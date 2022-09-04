@@ -182,13 +182,24 @@ export function addOutgo({
 
 export function updateOutgo(
   id: string,
-  { amount, description, date }: Pick<Outgo, "amount" | "description" | "date">
+  {
+    amount,
+    description,
+    date,
+    subcategory,
+    outgoCategoryId,
+  }: Pick<
+    Outgo,
+    "amount" | "description" | "date" | "outgoCategoryId" | "subcategory"
+  >
 ) {
   return prisma.outgo.update({
     data: {
       amount,
       description,
       date,
+      subcategory,
+      outgoCategoryId,
     },
     where: { id },
   });

@@ -6,14 +6,14 @@ import {
   json,
 } from "@remix-run/node";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLoaderData } from "@remix-run/react";
 import { getAllOutgoCategories } from "~/models/outgoCategories.server";
 import { getUser, getUserId } from "~/session.server";
 import type { OutgoCategory } from "@prisma/client";
+import { use } from "ast-types";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  console.log(7, params);
   const user = await getUser(request);
   const outgoCategories = await getAllOutgoCategories(user!.email);
 
@@ -33,8 +33,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   const description = formData.get("description");
   const date = formData.get("date") as string;
 
-  console.log(35, " cat:", formData.get("subcategory"));
   const outgoCategory = JSON.parse(formData.get("subcategory") as string);
+
   if (params.slug === "add") {
     await addOutgo({
       amount: Number(amount),
@@ -49,6 +49,8 @@ export const action: ActionFunction = async ({ request, params }) => {
       amount: Number(amount),
       description: description!.toString(),
       date: new Date(date),
+      subcategory: outgoCategory.subcategory.toString(),
+      outgoCategoryId: outgoCategory.categoryId,
     });
   }
 
@@ -57,23 +59,38 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function NewOutcome() {
   const data = useLoaderData();
-  console.log(56, data);
+
   const [date, setDate] = useState<string>(
     data.outgo?.date
       ? format(new Date(data.outgo?.date), "yyyy-MM-dd")
       : format(new Date(), "yyyy-MM-dd")
   );
+
+  useEffect(() => {
+    if (localStorage.getItem("last-used-date")) {
+      setDate(localStorage.getItem("last-used-date"));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("last-used-date", date);
+  }, [date]);
+
   const getSubcategoryOptions = (outgoCategory: OutgoCategory) => {
     const subcategories = outgoCategory.subcategories.split(",");
-    console.log(65, subcategories);
+
     if (subcategories.length > 1) {
-      return subcategories.map((subcat) => {
+      return subcategories.map((subcat, i) => {
         return (
           <option
             key={subcat}
+            selected={
+              data.outgo?.outgoCategoryId === outgoCategory.id &&
+              subcat === data.outgo.subcategory
+            }
             value={JSON.stringify({
               categoryId: outgoCategory.id,
-              subcategory: subcategories[0],
+              subcategory: subcat,
             })}
             label={subcat}
           />
@@ -82,7 +99,6 @@ export default function NewOutcome() {
     }
 
     if (subcategories.length === 1) {
-      console.log(73, subcategories[0]);
       return (
         <option
           key={subcategories[0]}
@@ -97,7 +113,7 @@ export default function NewOutcome() {
 
     return;
   };
-
+  console.log(99, data);
   return (
     <div
       className={
@@ -116,24 +132,6 @@ export default function NewOutcome() {
           >
             <div>
               <label
-                htmlFor="description"
-                className="mb-2 block text-sm font-medium text-gray-900"
-              >
-                Name
-              </label>
-              <input
-                type="text"
-                name="description"
-                autoComplete={"off"}
-                defaultValue={data.outgo?.description}
-                id="description"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                placeholder="Description"
-              />
-            </div>
-
-            <div>
-              <label
                 htmlFor="amount"
                 className="mb-2 block text-sm font-medium text-gray-900"
               >
@@ -143,6 +141,7 @@ export default function NewOutcome() {
                 type="number"
                 autoComplete={"off"}
                 name="amount"
+                step=".01"
                 id="amount"
                 defaultValue={data.outgo?.amount}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
@@ -191,6 +190,24 @@ export default function NewOutcome() {
                 })}
               </select>
             </div>
+            <div>
+              <label
+                htmlFor="description"
+                className="mb-2 block text-sm text-gray-900"
+              >
+                Name (Optional)
+              </label>
+              <input
+                type="text"
+                name="description"
+                autoComplete={"off"}
+                defaultValue={data.outgo?.description}
+                id="description"
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
+                placeholder="Description"
+              />
+            </div>
+
             <button
               type="submit"
               className="w-full rounded-lg bg-cyan-600 px-5 py-3 text-center text-base font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 sm:w-auto"

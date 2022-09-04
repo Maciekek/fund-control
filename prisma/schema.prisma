@@ -60,7 +60,7 @@ model Budget {
 
 model Outgo {
     id String @id @default(cuid())
-    amount Int
+    amount Float
     description String
     date  DateTime
 
@@ -77,7 +77,7 @@ model Outgo {
 
 model Income {
     id String @id @default(cuid())
-    amount Int
+    amount Float
     description String
     date  DateTime
 
