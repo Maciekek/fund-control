@@ -43,8 +43,27 @@ export async function getTotalIncome(id: string) {
 export async function getLatestOutgoes(id: string) {
   const outgoes = await prisma.outgo.findMany({
     where: { budgetId: id },
-    take: 15,
+    take: 10,
+    orderBy: [
+      {
+        date: "desc",
+      },
+    ],
     include: { outgoCategory: true },
+  });
+
+  return outgoes;
+}
+
+export async function getAllOutgoes(id: string) {
+  const outgoes = await prisma.outgo.findMany({
+    where: { budgetId: id },
+    include: { outgoCategory: true },
+    orderBy: [
+      {
+        date: "desc",
+      },
+    ],
   });
 
   return outgoes;

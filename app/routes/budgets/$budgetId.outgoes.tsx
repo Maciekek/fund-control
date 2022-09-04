@@ -8,6 +8,7 @@ import {
 import invariant from "tiny-invariant";
 import {
   deleteBudgetOutgo,
+  getAllOutgoes,
   getLatestOutgoes,
   Outgo,
 } from "~/models/budget.server";
@@ -40,7 +41,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.budgetId, "noteId not found");
 
-  const outgoes = await getLatestOutgoes(params.budgetId);
+  const outgoes = await getAllOutgoes(params.budgetId);
 
   return json<LoaderData>({
     outgoes: outgoes || [],
