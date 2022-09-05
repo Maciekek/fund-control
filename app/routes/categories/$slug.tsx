@@ -73,8 +73,7 @@ export default function NewNotePage() {
           };
         })
   );
-  console.log(60, data);
-  console.log(70, subcategories);
+
   return (
     <div
       className={

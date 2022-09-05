@@ -67,14 +67,14 @@ export default function NewOutcome() {
   );
 
   useEffect(() => {
-    document.addEventListener("wheel", function (event) {
-      if (document.activeElement.type === "number") {
+    document.addEventListener("wheel", function (event: WheelEvent) {
+      if (document?.activeElement?.type === "number") {
         document.activeElement.blur();
       }
     });
 
-    if (localStorage.getItem("last-used-date")) {
-      setDate(localStorage.getItem("last-used-date"));
+    if (localStorage.getItem("last-used-date") && data.outgo?.date) {
+      setDate(localStorage.getItem("last-used-date") || "");
     }
   }, []);
 
