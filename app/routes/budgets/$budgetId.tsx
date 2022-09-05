@@ -20,6 +20,15 @@ import { requireUser, requireUserId } from "~/session.server";
 import { format } from "date-fns";
 import { Box } from "~/components/box";
 import { TopTable } from "~/components/widgets/topTable";
+import { UploadIcon } from "@heroicons/react/solid";
+import * as React from "react";
+import { useFileUpload } from "~/hooks/useFileUpload";
+import { getJsonFromCsvFile } from "~/helpers/file";
+import Modal from "~/components/Modal";
+import { ImportAccountStatementModal } from "~/components/Modals/ImportAccountStatementModal";
+import { useState } from "react";
+import { getAllOutgoCategories } from "~/models/outgoCategories.server";
+import { OutgoCategory } from "@prisma/client";
 
 type LoaderData = {
   budget: Budget;
@@ -28,6 +37,7 @@ type LoaderData = {
   incomes?: Income[] | null;
   outgoes?: Outgo[] | null;
   groupedTotalOutgoes?: any;
+  outgoCategories?: OutgoCategory[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -37,6 +47,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const budget = await getBudget({ userId, id: params.budgetId });
   const incomes = await getLatestIncomes(params.budgetId);
   const outgoes = await getLatestOutgoes(params.budgetId);
+  const outgoCategories = await getAllOutgoCategories(userEmail);
 
   const totalIncome = await getTotalIncome(params.budgetId);
   const totalOutgo = await getTotalOutgo(params.budgetId);
@@ -56,6 +67,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     totalIncome,
     totalOutgo,
     groupedTotalOutgoes,
+    outgoCategories,
   });
 };
 
@@ -88,24 +100,49 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export default function NoteDetailsPage() {
   const data = useLoaderData() as LoaderData;
-  console.log(80, data);
+  const [files, uploadFile] = useFileUpload();
+  const [statements, setStatements] = useState<object[]>([]);
   return (
     <div className={"px-4 pt-6"}>
+      <ImportAccountStatementModal
+        statements={statements}
+        categories={data.outgoCategories}
+      />
       <div>
         <div className={"flex items-center justify-between"}>
-          <h3 className="text-2xl font-bold">{data.budget.name}</h3>
-          <Form method="post">
+          <div className={"flex items-center"}>
+            <h3 className="text-2xl font-bold">{data.budget.name}</h3>
+            <Form method="post" className={"ml-3"}>
+              <button
+                type="submit"
+                className="rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+              >
+                Delete
+              </button>
+            </Form>
+          </div>
+          <div>
             <button
               type="submit"
-              className="rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+              name={"intent"}
+              title={"Upload categories"}
+              onClick={() => {
+                uploadFile({ accept: "csv", multiple: false }, (file: File) => {
+                  getJsonFromCsvFile(file).then((json: object[]) => {
+                    console.log(121, json);
+                    setStatements(json);
+                  });
+                });
+              }}
+              value={"upload_categories"}
+              className="inline-flex cursor-pointer items-center py-2 text-center "
             >
-              Delete
+              <UploadIcon className="h-5 w-5 cursor-pointer " />
             </button>
-          </Form>
+          </div>
         </div>
         <hr className="my-4" />
       </div>
-
       <div
         className={
           "grid w-full grid-cols-1 gap-4 pb-4 xl:grid-cols-3 2xl:grid-cols-2"
@@ -319,7 +356,6 @@ export default function NoteDetailsPage() {
                       </thead>
                       <tbody className="bg-white">
                         {data?.outgoes?.map((outgo) => {
-                          console.log(322, outgo);
                           return (
                             <tr key={outgo.id}>
                               <td className="whitespace-nowrap p-4 text-sm font-normal text-gray-900">
