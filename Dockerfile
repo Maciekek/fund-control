@@ -40,7 +40,7 @@ RUN npm run build
 # Finally, build the production image with minimal footprint
 FROM base
 
-ENV DATABASE_URL=postgres://default:tqb3veS1jmon@ep-noisy-surf-107765.eu-central-1.postgres.vercel-storage.com:5432/verceldb
+ENV DATABASE_URL=url
 ENV SESSION_SECRET="d4363d581cae588671e427f142449ad6"
 
 ENV PORT="8080"
