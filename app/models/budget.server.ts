@@ -69,6 +69,19 @@ export async function getAllOutgoes(id: string) {
   return outgoes;
 }
 
+export async function getAllIncomes(id: string) {
+  const incomes = await prisma.income.findMany({
+    where: { budgetId: id },
+
+    orderBy: [
+      {
+        date: "desc",
+      },
+    ],
+  });
+
+  return incomes;
+}
 export async function getTotalOutgo(id: string) {
   const outgoes = await prisma.outgo.findMany({
     where: { budgetId: id },
@@ -231,12 +244,12 @@ export async function getGroupedTotalOutgoes(id: string, userEmail: string) {
 
   const categories = await getAllOutgoCategories(userEmail);
 
-  console.log(200, outgoes);
-  console.log(205, categories);
+  // console.log(200, outgoes);
+  // console.log(205, categories);
   const groups = groupBy<Outgo>(outgoes, (outgo) => outgo.outgoCategoryId);
 
   const groupKeys = Object.keys(groups);
-  console.log(207, groupKeys);
+  // console.log(207, groupKeys);
 
   const groupsWithCategoryAsName = groupKeys.reduce((result: any, groupKey) => {
     const category = categories?.find(({ id }) => id === groupKey);

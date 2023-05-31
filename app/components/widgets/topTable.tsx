@@ -4,7 +4,6 @@ type TopTableProps = {
 };
 
 const TopTable = ({ data, total }: TopTableProps) => {
-  console.log(7, data, total);
   return (
     <div className="rounded-lg bg-white p-4 shadow sm:p-6 xl:p-8 ">
       <h3 className="mb-10 text-xl font-bold leading-none text-gray-900">

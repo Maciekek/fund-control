@@ -38,3 +38,9 @@ The database seed script creates a new user with some data you can use to get st
 - Email: `rachel@remix.run`
 - Password: `racheliscool`
 
+# Deployment 
+
+- `fly launch`
+- `fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app fund-control-test-123`
+- `fly volumes create data --size 1 --app fund-control-test-123`
+- `fly deploy`

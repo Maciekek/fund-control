@@ -95,7 +95,6 @@ export default function OutgoCategoriesIndexPage() {
                   onChange={(e) => {
                     const reader = new FileReader();
                     reader.onload = (event) => {
-                      console.log(JSON.parse(event.currentTarget.result));
                       const formData = new FormData();
 
                       formData.set("intent", "upload_categories");

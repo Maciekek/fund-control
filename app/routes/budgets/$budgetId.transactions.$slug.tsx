@@ -7,18 +7,22 @@ import {
 } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import {
+  deleteBudgetIncome,
   deleteBudgetOutgo,
+  getAllIncomes,
   getAllOutgoes,
-  getLatestOutgoes,
   Outgo,
 } from "~/models/budget.server";
 import { format } from "date-fns";
 import type { OutgoCategory } from "@prisma/client";
+import { Income } from "@prisma/client";
+import { TransactionType } from "~/models/types";
 
 type OutgoWithCategories = Outgo & { outgoCategory: OutgoCategory };
 
 type LoaderData = {
-  outgoes?: OutgoWithCategories[] | null;
+  transactions?: OutgoWithCategories[] | Income[] | null;
+  type: TransactionType;
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -27,10 +31,19 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.budgetId, "budgetId not found");
 
   const intent = formData.get("intent");
-
-  if (intent === "delete_outgo") {
-    const outgoId = formData.get("outgoId") as string;
+  console.log(33, intent);
+  if (intent === "delete_Outgo") {
+    console.log(35, "DELTER");
+    const outgoId = formData.get("id") as string;
     await deleteBudgetOutgo({ id: outgoId, budgetId: params.budgetId });
+
+    return "/";
+  }
+
+  if (intent === "delete_Income") {
+    console.log(35, "DELTER");
+    const id = formData.get("id") as string;
+    await deleteBudgetIncome({ id: id, budgetId: params.budgetId });
 
     return "/";
   }
@@ -40,11 +53,15 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.budgetId, "noteId not found");
-
-  const outgoes = await getAllOutgoes(params.budgetId);
+  console.log(42, params.slug);
+  const transactions =
+    params.slug === "Outgo"
+      ? await getAllOutgoes(params.budgetId)
+      : await getAllIncomes(params.budgetId);
 
   return json<LoaderData>({
-    outgoes: outgoes || [],
+    transactions: transactions || [],
+    type: params.slug as TransactionType,
   });
 };
 
@@ -58,47 +75,47 @@ export default function NewOutcome() {
           <div className="mb-1 w-full">
             <div className="mb-4">
               <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
-                All outgoes
+                Transactions
               </h1>
             </div>
             <div className="sm:flex">
-              <div className="mb-3 hidden items-center sm:mb-0 sm:flex sm:divide-x sm:divide-gray-100">
-                <form className="lg:pr-3" action="#" method="GET">
-                  <label htmlFor="users-search" className="sr-only">
-                    Search (not working)
-                  </label>
-                  <div className="relative mt-1 lg:w-64 xl:w-96">
-                    <input
-                      type="text"
-                      name="email"
-                      disabled
-                      id="users-search"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"
-                      placeholder="Not implemented yet"
-                    />
-                  </div>
-                </form>
-              </div>
-              <div className="ml-auto flex items-center space-x-2 sm:space-x-3">
-                <Link
-                  to="add"
-                  className="inline-flex w-1/2 items-center justify-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 sm:w-auto"
-                >
-                  <svg
-                    className="-ml-1 mr-2 h-6 w-6"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Add outcome
-                </Link>
-              </div>
+              {/*<div className="mb-3 hidden items-center sm:mb-0 sm:flex sm:divide-x sm:divide-gray-100">*/}
+              {/*<form className="lg:pr-3" action="#" method="GET">*/}
+              {/*  <label htmlFor="users-search" className="sr-only">*/}
+              {/*    Search (not working)*/}
+              {/*  </label>*/}
+              {/*  <div className="relative mt-1 lg:w-64 xl:w-96">*/}
+              {/*    <input*/}
+              {/*      type="text"*/}
+              {/*      name="email"*/}
+              {/*      disabled*/}
+              {/*      id="users-search"*/}
+              {/*      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-cyan-600 focus:ring-cyan-600 sm:text-sm"*/}
+              {/*      placeholder="Not implemented yet"*/}
+              {/*    />*/}
+              {/*  </div>*/}
+              {/*</form>*/}
+              {/*</div>*/}
+              {/*<div className="ml-auto flex items-center space-x-2 sm:space-x-3">*/}
+              {/*  <Link*/}
+              {/*    to="add"*/}
+              {/*    className="inline-flex w-1/2 items-center justify-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 sm:w-auto"*/}
+              {/*  >*/}
+              {/*    <svg*/}
+              {/*      className="-ml-1 mr-2 h-6 w-6"*/}
+              {/*      fill="currentColor"*/}
+              {/*      viewBox="0 0 20 20"*/}
+              {/*      xmlns="http://www.w3.org/2000/svg"*/}
+              {/*    >*/}
+              {/*      <path*/}
+              {/*        fillRule="evenodd"*/}
+              {/*        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"*/}
+              {/*        clipRule="evenodd"*/}
+              {/*      />*/}
+              {/*    </svg>*/}
+              {/*    Add outcome*/}
+              {/*  </Link>*/}
+              {/*</div>*/}
             </div>
           </div>
         </div>
@@ -106,22 +123,14 @@ export default function NewOutcome() {
           <div className="overflow-x-auto">
             <div className="inline-block min-w-full pt-2 align-middle">
               <div className="overflow-hidden shadow">
-                {data.outgoes?.length === 0 ? (
+                {data.transactions!.length === 0 ? (
                   <div
                     className={"rounded-lg bg-white p-4 shadow sm:p-6 xl:p-8 "}
                   >
                     <div className="">
                       <div className="text text-center">
                         <div className="text-underline text-zinc-500">
-                          Great! You have no outgoes
-                        </div>
-                        <div>
-                          <Link
-                            className="rounded-lg p-1 text-sm font-medium text-cyan-600 hover:bg-gray-100"
-                            to="add"
-                          >
-                            Add your first outgo!
-                          </Link>
+                          No transactions to display
                         </div>
                       </div>
                     </div>
@@ -134,7 +143,7 @@ export default function NewOutcome() {
                           scope="col"
                           className="p-4 text-left text-xs font-medium uppercase text-gray-500"
                         >
-                          Outcome description
+                          Description
                         </th>
                         <th
                           scope="col"
@@ -142,13 +151,14 @@ export default function NewOutcome() {
                         >
                           Amount
                         </th>
-
-                        <th
-                          scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase text-gray-500"
-                        >
-                          Category
-                        </th>
+                        {data.type === "Outgo" ? (
+                          <th
+                            scope="col"
+                            className="p-4 text-left text-xs font-medium uppercase text-gray-500"
+                          >
+                            Category
+                          </th>
+                        ) : null}
 
                         <th
                           scope="col"
@@ -166,34 +176,48 @@ export default function NewOutcome() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                      {data.outgoes?.map((outgo) => {
+                      {data.transactions!.map((transaction) => {
                         return (
-                          <tr className="hover:bg-gray-100" key={outgo.id}>
+                          <tr
+                            className="hover:bg-gray-100"
+                            key={transaction.id}
+                          >
                             <td className="whitespace-nowrap p-4 text-base font-medium text-gray-900">
                               <div className="text-sm font-normal text-gray-500">
                                 <div className="text-base font-semibold text-gray-900">
-                                  {outgo.description.length > 0
-                                    ? outgo.description
-                                    : outgo.outgoCategory.name}
+                                  {transaction.description.length > 0
+                                    ? transaction.description
+                                    : "outgo.outgoCategory.name"}
                                 </div>
                               </div>
                             </td>
                             <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
-                              {outgo.amount}
+                              {transaction.amount}
                             </td>
+                            {data.type === "Outgo" ? (
+                              <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
+                                <span>
+                                  <span className="font-medium">
+                                    {
+                                      (transaction as OutgoWithCategories)
+                                        .outgoCategory.name
+                                    }
+                                  </span>
+                                  :
+                                  {
+                                    (transaction as OutgoWithCategories)
+                                      .subcategory
+                                  }
+                                </span>
+                              </td>
+                            ) : null}
                             <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
-                              <span className="font-medium">
-                                {outgo.outgoCategory.name}
-                              </span>
-                              : {outgo.subcategory}
-                            </td>
-                            <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
-                              {format(new Date(outgo.date), "PP")}
+                              {format(new Date(transaction.date), "PP")}
                             </td>
 
                             <td className="max-w-xs	space-x-2 whitespace-nowrap p-4 text-right">
                               <Link
-                                to={outgo.id}
+                                to={transaction.id}
                                 className="inline-flex items-center rounded-lg bg-cyan-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200"
                               >
                                 <svg
@@ -216,14 +240,14 @@ export default function NewOutcome() {
                                 <input
                                   type="text"
                                   className={"hidden"}
-                                  name={"outgoId"}
-                                  value={outgo.id}
+                                  name={"id"}
+                                  value={transaction.id}
                                   readOnly={true}
                                 />
                                 <button
                                   type="submit"
                                   name={"intent"}
-                                  value={"delete_outgo"}
+                                  value={`delete_${data.type}`}
                                   data-modal-toggle="delete-user-modal"
                                   className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 focus:ring-red-300"
                                 >

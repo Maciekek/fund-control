@@ -69,7 +69,7 @@ export default function NewOutcome() {
   useEffect(() => {
     document.addEventListener("wheel", function (event: WheelEvent) {
       if (document?.activeElement?.type === "number") {
-        document.activeElement.blur();
+        (document.activeElement as HTMLInputElement).blur();
       }
     });
 

@@ -1,18 +1,20 @@
 import { ReactNode } from "react";
 import { Link } from "@remix-run/react";
+import { formatNumberToCurrency } from "~/helpers/number";
 
 type BoxProps = {
   mainText?: string;
+  amount?: number;
   secondaryText?: string | ReactNode;
   editUrl?: string;
   link?: string;
 };
-const Box = ({ mainText, secondaryText, link }: BoxProps) => {
+const Box = ({ mainText, secondaryText, link, amount }: BoxProps) => {
   const content = (
     <div className="flex items-center">
       <div className="flex-shrink-0">
         <span className="text-2xl font-bold leading-none text-gray-900 sm:text-3xl">
-          {mainText ?? null}
+          {amount ? formatNumberToCurrency(amount) : mainText}
         </span>
         <h3 className="text-base font-normal text-gray-500">
           {secondaryText ?? null}

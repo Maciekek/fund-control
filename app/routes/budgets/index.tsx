@@ -19,7 +19,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function BudgetIndexPage() {
   const budgets = useLoaderData() as Budgets[];
-
+  console.log(22, budgets);
   if (budgets.length === 0) {
     return (
       <Box

@@ -43,6 +43,8 @@ export default function App() {
       <head>
         <Meta />
         <Links />
+
+        <script src=""></script>
       </head>
       <body className="h-full">
         <Outlet />

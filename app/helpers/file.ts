@@ -17,7 +17,6 @@ export const getJsonFromCsvFile = (file: File): Promise<object[]> => {
       csv()
         .fromString(content)
         .then((jsonObj: object[]) => {
-          console.log(jsonObj);
           resolve(jsonObj);
         });
     });
