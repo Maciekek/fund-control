@@ -40,7 +40,7 @@ RUN npm run build
 # Finally, build the production image with minimal footprint
 FROM base
 
-ENV DATABASE_URL=url
+ENV DATABASE_URL=file:/data/sqlite.db
 ENV SESSION_SECRET="d4363d581cae588671e427f142449ad6"
 
 ENV PORT="8080"

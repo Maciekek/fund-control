@@ -33,7 +33,6 @@ export async function getTotalIncome(id: string) {
   const incomes = await prisma.income.findMany({
     where: { budgetId: id },
   });
-  console.log(35, incomes);
 
   return incomes.reduce((total, income) => {
     return total + income.amount;
@@ -192,6 +191,7 @@ export function addOutgo({
 > & {
   budgetId: Budget["id"];
 }) {
+  console.log(195, outgoCategoryId, subcategory);
   return prisma.outgo.create({
     data: {
       amount,
