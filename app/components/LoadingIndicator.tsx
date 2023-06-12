@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useTransition } from "@remix-run/react";
 import C from "classnames";
 
@@ -5,36 +6,37 @@ function LoadingIndicator() {
   const transition = useTransition();
   const active = transition.state !== "idle";
 
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [animationComplete, setAnimationComplete] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+    if (active) setAnimationComplete(false);
+
+    Promise.allSettled(
+      ref.current.getAnimations().map(({ finished }) => finished)
+    ).then(() => !active && setAnimationComplete(true));
+  }, [active]);
+
   return (
     <div
       role="progressbar"
-      aria-valuetext={active ? "Loading" : undefined}
       aria-hidden={!active}
-      className={C(
-        "pointer-events-none fixed left-0 bottom-0 z-50 p-4 transition-all duration-500 ease-out",
-        active ? "translate-y-0" : "translate-y-full"
-      )}
+      aria-valuetext={active ? "Loading" : undefined}
+      className="fixed inset-x-0 top-0 left-0 z-50 h-1 animate-pulse"
     >
-      <svg
-        className="h-7 w-7 animate-spin"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        width="1em"
-        height="1em"
-      >
-        <circle
-          className="stroke-blue-600/25"
-          cx={12}
-          cy={12}
-          r={10}
-          strokeWidth={4}
-        />
-        <path
-          className="fill-blue-600"
-          d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        />
-      </svg>
+      <div
+        ref={ref}
+        className={C(
+          "h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-500 ease-in-out",
+          transition.state === "idle" &&
+            animationComplete &&
+            "w-0 opacity-0 transition-none",
+          transition.state === "submitting" && "w-4/12",
+          transition.state === "loading" && "w-10/12",
+          transition.state === "idle" && !animationComplete && "w-full"
+        )}
+      />
     </div>
   );
 }
