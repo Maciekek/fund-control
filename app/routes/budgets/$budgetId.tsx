@@ -167,27 +167,30 @@ export default function NoteDetailsPage() {
               name={"intent"}
               title={"Upload categories"}
               onClick={() => {
-                uploadFile({ accept: "csv", multiple: false }, (file: File) => {
-                  getJsonFromCsvFile(file).then((json: object[]) => {
-                    console.log(121, json);
+                uploadFile!(
+                  { accept: "csv", multiple: false },
+                  (file: File) => {
+                    getJsonFromCsvFile(file).then((json: object[]) => {
+                      const _statements = json.map((s: any) => {
+                        return {
+                          date: s["Data transakcji"],
+                          amount: s["Obciążenia"]
+                            ? s["Obciążenia"]
+                            : s["Uznania"],
+                          budgetId: "xxx",
+                          outgoCategoryId: data.outgoCategories![0].id,
+                          subcategory:
+                            data.outgoCategories![0].subcategories.split(
+                              ","
+                            )[0],
+                          description: s["Opis"],
+                        };
+                      });
 
-                    const _statements = json.map((s: any) => {
-                      return {
-                        date: s["Data transakcji"],
-                        amount: s["Obciążenia"]
-                          ? s["Obciążenia"]
-                          : s["Uznania"],
-                        budgetId: "xxx",
-                        outgoCategoryId: "cl7ng7tgc0086sei01p0dfd3h",
-                        subcategory: "Jedzenie do domu (Lidl)",
-                        description: s["Opis"],
-                      };
+                      setStatements(_statements);
                     });
-
-                    console.log(186, _statements);
-                    setStatements(_statements);
-                  });
-                });
+                  }
+                );
               }}
               value={"upload_categories"}
               className="inline-flex cursor-pointer items-center py-2 text-center "
