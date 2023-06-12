@@ -16,6 +16,7 @@ import {
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 
 import { getUser } from "./session.server";
+import { LoadingIndicator } from "~/components/LoadingIndicator";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -47,6 +48,7 @@ export default function App() {
         <script src=""></script>
       </head>
       <body className="h-full">
+        <LoadingIndicator />
         <Outlet />
         <ScrollRestoration />
         <Scripts />
