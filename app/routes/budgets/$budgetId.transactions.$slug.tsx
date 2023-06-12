@@ -17,6 +17,8 @@ import { format } from "date-fns";
 import type { OutgoCategory } from "@prisma/client";
 import { Income } from "@prisma/client";
 import { TransactionType } from "~/models/types";
+import { useState } from "react";
+import { formatNumberToCurrency } from "~/helpers/number";
 
 type OutgoWithCategories = Outgo & { outgoCategory: OutgoCategory };
 
@@ -67,6 +69,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function NewOutcome() {
   const data = useLoaderData() as LoaderData;
+  const [sortBy, setSortBy] = useState("amount");
+  const sortedData = data.transactions
+    ?.slice()
+    ?.sort((a: any, b: any) => a[sortBy] - b[sortBy]);
 
   return (
     <>
@@ -123,7 +129,7 @@ export default function NewOutcome() {
           <div className="overflow-x-auto">
             <div className="inline-block min-w-full pt-2 align-middle">
               <div className="overflow-hidden shadow">
-                {data.transactions!.length === 0 ? (
+                {sortedData!.length === 0 ? (
                   <div
                     className={"rounded-lg bg-white p-4 shadow sm:p-6 xl:p-8 "}
                   >
@@ -141,20 +147,23 @@ export default function NewOutcome() {
                       <tr>
                         <th
                           scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase text-gray-500"
+                          className="cursor-pointer p-4 text-left text-xs font-medium uppercase text-gray-500"
+                          onClick={() => setSortBy("description")}
                         >
                           Description
                         </th>
                         <th
                           scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase text-gray-500"
+                          className="cursor-pointer p-4 text-left text-xs font-medium uppercase text-gray-500"
+                          onClick={() => setSortBy("amount")}
                         >
                           Amount
                         </th>
                         {data.type === "Outgo" ? (
                           <th
                             scope="col"
-                            className="p-4 text-left text-xs font-medium uppercase text-gray-500"
+                            className="cursor-pointer p-4 text-left text-xs font-medium uppercase text-gray-500"
+                            onClick={() => setSortBy("category")}
                           >
                             Category
                           </th>
@@ -162,7 +171,8 @@ export default function NewOutcome() {
 
                         <th
                           scope="col"
-                          className="p-4 text-left text-xs font-medium uppercase text-gray-500"
+                          className="cursor-pointer p-4 text-left text-xs font-medium uppercase text-gray-500"
+                          onClick={() => setSortBy("date")}
                         >
                           Date
                         </th>
@@ -176,7 +186,7 @@ export default function NewOutcome() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                      {data.transactions!.map((transaction) => {
+                      {sortedData!.map((transaction) => {
                         return (
                           <tr
                             className="hover:bg-gray-100"
@@ -192,7 +202,7 @@ export default function NewOutcome() {
                               </div>
                             </td>
                             <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
-                              {transaction.amount}
+                              {formatNumberToCurrency(transaction.amount)}
                             </td>
                             {data.type === "Outgo" ? (
                               <td className="whitespace-nowrap p-4 text-base font-normal text-gray-500">
