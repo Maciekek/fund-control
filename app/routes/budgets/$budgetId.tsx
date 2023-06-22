@@ -37,6 +37,7 @@ import { useState } from "react";
 import { getAllOutgoCategories } from "~/models/outgoCategories.server";
 import { OutgoCategory } from "@prisma/client";
 import { LatestTransactionTable } from "~/components/LatestTransactionTable";
+import { da } from "date-fns/locale";
 
 type LoaderData = {
   budget: Budget;

@@ -1,4 +1,4 @@
-import type { Password, User, Budget, Income, Outgo } from "@prisma/client";
+import type { User, Budget, Income, Outgo } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 import { groupBy } from "~/helpers/array";
@@ -33,7 +33,6 @@ export async function getTotalIncome(id: string) {
   const incomes = await prisma.income.findMany({
     where: { budgetId: id },
   });
-  console.log(35, incomes);
 
   return incomes.reduce((total, income) => {
     return total + income.amount;
@@ -244,12 +243,9 @@ export async function getGroupedTotalOutgoes(id: string, userEmail: string) {
 
   const categories = await getAllOutgoCategories(userEmail);
 
-  // console.log(200, outgoes);
-  // console.log(205, categories);
   const groups = groupBy<Outgo>(outgoes, (outgo) => outgo.outgoCategoryId);
 
   const groupKeys = Object.keys(groups);
-  // console.log(207, groupKeys);
 
   const groupsWithCategoryAsName = groupKeys.reduce((result: any, groupKey) => {
     const category = categories?.find(({ id }) => id === groupKey);
@@ -257,13 +253,33 @@ export async function getGroupedTotalOutgoes(id: string, userEmail: string) {
       (outgo) => outgo.outgoCategoryId === category?.id
     );
 
+    const subcategoriesSummary = outgoesByCategory.reduce((acc: any, outgo) => {
+      if (!acc[outgo.subcategory]) {
+        const outGoesWithSameSubcategory = outgoesByCategory.filter((o) => {
+          return o.subcategory === outgo.subcategory;
+        });
+
+        acc[outgo.subcategory] = outGoesWithSameSubcategory.reduce(
+          (sum, outgo) => {
+            return sum + outgo.amount;
+          },
+          0
+        );
+
+        return acc;
+      }
+      return acc;
+    }, {});
     const categoryTotal = outgoesByCategory.reduce((sum, outgo) => {
       return sum + outgo.amount;
     }, 0);
 
     const name = category?.name || "unknown category name";
 
-    result[name] = categoryTotal;
+    result[name] = {
+      total: categoryTotal,
+      subcategorySummary: subcategoriesSummary,
+    };
 
     return result;
   }, {});
