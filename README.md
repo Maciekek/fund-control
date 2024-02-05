@@ -1,7 +1,6 @@
 # Fund Control 
 
-Under development
-
+Small app to play a little bit with Remix.run (https://remix.run/).
 
 # Quickstart
 
